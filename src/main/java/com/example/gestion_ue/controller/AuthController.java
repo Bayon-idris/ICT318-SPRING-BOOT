@@ -64,24 +64,7 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @PostMapping("/user/login")
-    public String login(@Valid @ModelAttribute("user") UserDto user,
-                               BindingResult result,
-                               Model model) {
-        User user = userRepository.findByEmail(email);
 
-        System.out.println("email " + email + "ici jaffiche le email " + user.getEmail() + " " + user.getPassword());
-
-        if (user != null) {
-            return new org.springframework.security.core.userdetails.User(user.getEmail(),
-                    user.getPassword(),
-                    mapRolesToAuthorities(user.getRoles()));
-        }else{
-            throw new UsernameNotFoundException("Email ou mot de passe invalide");
-        }
-        userService.saveUser(user);
-        return "redirect:/login";
-    }
 
     @GetMapping("/users")
     public String listRegisteredUsers(Model model) {

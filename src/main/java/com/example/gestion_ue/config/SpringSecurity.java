@@ -30,7 +30,8 @@ public class SpringSecurity {
                 .authorizeHttpRequests((authorize) ->
                         authorize.requestMatchers("/register/**").permitAll()
                                 .requestMatchers("/index").permitAll()
-                                .requestMatchers("/users").hasRole("ADMIN")
+                                .requestMatchers("/users").hasRole("TEACHER")
+//                                .requestMatchers("/users").hasRole("ROLE_STUDENT")
                 ).formLogin(
                         form -> form
                                 .loginPage("/login")
