@@ -1,9 +1,9 @@
 package com.example.gestion_ue.controller;
 
+import com.example.gestion_ue.dto.UeDto;
 import com.example.gestion_ue.dto.UserDto;
 import com.example.gestion_ue.model.User;
 import com.example.gestion_ue.service.UserService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -65,16 +65,22 @@ public class AuthController {
     }
 
 
-
-    @GetMapping("/users")
+    @GetMapping("dashboard/index")
     public String listRegisteredUsers(Model model) {
+        UeDto ueDto = new UeDto();
         List<UserDto> users = userService.findAllUsers();
         model.addAttribute("users", users);
-        return "users";
+        model.addAttribute("ues" ,ueDto);
+        return "dashboard/index";
     }
 
     public boolean isPasswordValid(String password) {
         String passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
         return password.matches(passwordPattern);
+    }
+
+    @GetMapping("/profile")
+    public String showProfilePage() {
+        return "dashboard/profile";
     }
 }
