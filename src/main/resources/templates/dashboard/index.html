@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:tr="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="UTF-8">
@@ -9,8 +9,6 @@
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
     <link rel="stylesheet" th:href="@{/assets/css/components.css}">
     <link rel="stylesheet" th:href="@{/assets/css/custom.css}">
-    <!--    <meta name="_csrf" th:content="${_csrf.token}"/>-->
-    <!--    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>-->
 </head>
 
 <body>
@@ -353,12 +351,9 @@
                         <div class="col-md-10">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb bg-primary text-white-all">
-                                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-tachometer-alt"></i>
-                                        Home</a></li>
-                                    <li class="breadcrumb-item"><a href="#"><i class="far fa-file"></i> Library</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-list"></i>
-                                        Data
-                                    </li>
+                                    <li class="breadcrumb-item"><a th:href="@{dashboard/index}"><i class="fas fa-tachometer-alt"></i>
+                                        Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-book"></i>Mes Ues</a></li>
                                 </ol>
                             </nav>
                         </div>
@@ -526,7 +521,7 @@
     <!-- MODAL AJOUT D'UNE UE -->
     <div class="modal fade" id="addUeModal" tabindex="-1" aria-labelledby="addUeModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form th:action="@{/dashboard/add-ues}" th:object="${ues}" method="post">
+            <form th:action="@{/dashboard/add-ues}" th:object="${ues}" method="post" id="addUeForm">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addUeModalLabel">Ajouter une UE</h5>
@@ -539,17 +534,13 @@
                             <label for="ueCode">Code de l'UE <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="ueCode" th:field="*{code}" placeholder="ICT300"
                                    required>
-                            <p th:errors="*{code}" class="text-danger"
-                               th:if="${#fields.hasErrors('code')}">
-                            </p>
+                            <p class="text-danger" id="ueCodeError"></p>
                         </div>
                         <div class="form-group">
                             <label for="ueTitle">Libellé de l'UE <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="ueTitle" th:field="*{title}"
-                                   placeholder="Ue Projet" required>
-                            <p th:errors="*{title}" class="text-danger"
-                               th:if="${#fields.hasErrors('title')}">
-                            </p>
+                                   placeholder="UE Projet" required>
+                            <p class="text-danger" id="ueTitleError"></p>
                         </div>
                         <div class="form-group">
                             <label for="ueDescription">Description</label>
@@ -558,9 +549,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="reset" class="btn btn-warning" value="Reset"/>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <input type="reset" class="btn btn-warning" value="Réinitialiser"/>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Enregistrer</button>
                     </div>
+
                 </div>
             </form>
         </div>
@@ -585,10 +577,12 @@
                         <div class="form-group">
                             <label for="editUeCode">Code de l'UE <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="editUeCode" required>
+                            <p class="text-danger" id="ueCodeUpdateError"></p>
                         </div>
                         <div class="form-group">
                             <label for="editUeTitle">Libellé de l'UE <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="editUeTitle" required>
+                            <p class="text-danger" id="ueTitleUpdateError"></p>
                         </div>
                         <div class="form-group">
                             <label for="editUeDescription">Description</label>
@@ -600,6 +594,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
                     <button type="button" class="btn btn-primary" id="saveChangesButton">Enregistrer les modifications</button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -649,7 +644,6 @@
             }
         })
             .then(response => {
-                console.log('Réponse:', response);
                 if (response.ok) {
                     document.getElementById(`card_${ueId}`).remove();
                     $('#deleteUeModal').modal('hide');
@@ -676,7 +670,8 @@
         ueTitle.value = modalTrigger.getAttribute('data-title');
         ueDescription.value = modalTrigger.getAttribute('data-description');
     }
-    document.getElementById('saveChangesButton').addEventListener('click', function() {
+
+    document.getElementById('saveChangesButton').addEventListener('click', function () {
         const ueId = document.getElementById('editUeId').value;
         const ueCode = document.getElementById('editUeCode').value;
         const ueTitle = document.getElementById('editUeTitle').value;
@@ -707,7 +702,127 @@
     });
 
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const ueCodeInput = document.getElementById('ueCode');
+        const ueTitleInput = document.getElementById('ueTitle');
+        const ueDescriptionInput = document.getElementById('ueDescription');
+        const submitBtn = document.getElementById('submitBtn');
 
+        function validateFields() {
+            let isValid = true;
+
+            const ueCodeValue = ueCodeInput.value.trim();
+            if (ueCodeValue === '') {
+                document.getElementById('ueCodeError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueCodeError').textContent = "";
+            }
+
+            const ueTitleValue = ueTitleInput.value.trim();
+            if (ueTitleValue === '') {
+                document.getElementById('ueTitleError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueTitleError').textContent = "";
+            }
+            submitBtn.disabled = !isValid;
+        }
+
+        ueCodeInput.addEventListener('input', validateFields);
+        ueTitleInput.addEventListener('input', validateFields);
+        ueDescriptionInput.addEventListener('input', validateFields);
+        validateFields();
+    });
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ueCodeField = document.getElementById('ueCode');
+
+        ueCodeField.addEventListener('input', function () {
+            const ueCode = ueCodeField.value.trim();
+
+            fetch(`/dashboard/check-ue-code/${ueCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    const ueCodeError = document.getElementById('ueCodeError');
+                    if (data.exists) {
+                        ueCodeError.textContent = 'Ce code d\'UE existe déjà.';
+                        document.getElementById('submitBtn').disabled = true;
+                    } else {
+                        ueCodeError.textContent = '';
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la vérification du code d\'UE:', error);
+                });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const editUeCodeInput = document.getElementById('editUeCode');
+        const editUeTitleInput = document.getElementById('editUeTitle');
+        const saveChangesButton = document.getElementById('saveChangesButton');
+
+        function validateForm() {
+            let isValid = true;
+
+            const editUeCodeValue = editUeCodeInput.value.trim();
+            if (editUeCodeValue === '') {
+                document.getElementById('ueCodeUpdateError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueCodeUpdateError').textContent = "";
+            }
+
+            const editUeTitleValue = editUeTitleInput.value.trim();
+            if (editUeTitleValue === '') {
+                document.getElementById('ueTitleUpdateError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueTitleUpdateError').textContent = "";
+            }
+
+            saveChangesButton.disabled = !isValid;
+        }
+
+        function handleInputValidation(event) {
+            const target = event.target;
+            if (target === editUeCodeInput || target === editUeTitleInput) {
+                validateForm();
+            }
+        }
+
+        editUeCodeInput.addEventListener('input', handleInputValidation);
+        editUeTitleInput.addEventListener('input', handleInputValidation);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ueCodeField = document.getElementById('editUeCode');
+        document.getElementById('saveChangesButton').disabled = true;
+
+        ueCodeField.addEventListener('input', function () {
+            const ueCode = ueCodeField.value.trim();
+
+            fetch(`/dashboard/check-ue-code/${ueCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    const ueCodeError = document.getElementById('ueCodeUpdateError');
+                    if (data.exists) {
+                        ueCodeError.textContent = 'Ce code d\'UE existe déjà.';
+                        document.getElementById('saveChangesButton').disabled = true;
+                    } else {
+                        ueCodeError.textContent = '';
+                        document.getElementById('saveChangesButton').disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la vérification du code d\'UE:', error);
+                });
+        });
+    });
 
 
 </script>
