@@ -3,6 +3,7 @@ package com.example.gestion_ue.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,7 @@ public class SpringSecurity {
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/register/**", "/index").permitAll()
                         .requestMatchers("/dashboard/index").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.DELETE, "/dashboard/delete-ue/**").hasRole("TEACHER")
                         .requestMatchers("/dashboard/profile").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -46,6 +48,7 @@ public class SpringSecurity {
                 );
         return http.build();
     }
+
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

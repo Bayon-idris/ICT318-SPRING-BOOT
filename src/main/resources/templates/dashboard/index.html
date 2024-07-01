@@ -9,6 +9,8 @@
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
     <link rel="stylesheet" th:href="@{/assets/css/components.css}">
     <link rel="stylesheet" th:href="@{/assets/css/custom.css}">
+    <!--    <meta name="_csrf" th:content="${_csrf.token}"/>-->
+    <!--    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>-->
 </head>
 
 <body>
@@ -368,30 +370,39 @@
                     </div>
 
                     <div class="row mt-3">
-                        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
                             <a href="#" class="card-link">
-                                <div class="card card-hover" id="cards_1">
+                                <div class="card card-hover" th:id="'card_' + ${ue.id}">
                                     <div class="card-statistic-4">
                                         <div class="align-items-center justify-content-between">
                                             <div class="row">
                                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                                                     <div class="card-content">
-                                                        <h5 class="font-20">ICT300</h5>
-                                                        <span class=" mt-2 mb-3 font-15">UE Projet</span>
+                                                        <h5 class="font-20"
+                                                            th:text="${ue.getCode().toUpperCase()}"></h5>
+                                                        <span class="mt-2 mb-3 font-15" th:text="${ue.title}"></span>
                                                         <br>
-                                                        <span class=" mt-2 mb-3 font-13">Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio, vero?</span>
+                                                        <span class="mt-2 mb-3 font-13"
+                                                              th:text="${ue.description}"></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
                                                     <div class="ml-auto float-right mt-3">
                                                         <button class="btn btn-info btn-sm" type="button"
                                                                 data-toggle="modal" data-target="#modifyUeModal"
-                                                                onclick="updateUe(1, 'ICT300', 'UE Projet', 'Description...')">
-                                                            <i class="fas fa-edit"></i></button>
+                                                                th:attr="data-id=${ue.id}, data-code=${ue.code}, data-title=${ue.title}, data-description=${ue.description}"
+                                                                onclick="populateUeModal()">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+
+
                                                         <button class="btn btn-danger btn-sm" type="button"
                                                                 data-toggle="modal" data-target="#deleteUeModal"
-                                                                onclick="deleteUe(1)"><i class="fas fa-trash"></i>
+                                                                th:attr="data-id=${ue.id},data-code=${ue.code}"
+                                                                onclick="prepareDelete(this)">
+                                                            <i class="fas fa-trash"></i>
                                                         </button>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -511,6 +522,7 @@
         </footer>
 
     </div>
+
     <!-- MODAL AJOUT D'UNE UE -->
     <div class="modal fade" id="addUeModal" tabindex="-1" aria-labelledby="addUeModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -525,7 +537,8 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="ueCode">Code de l'UE <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="ueCode" th:field="*{code}" placeholder="ICT300" required>
+                            <input type="text" class="form-control" id="ueCode" th:field="*{code}" placeholder="ICT300"
+                                   required>
                             <p th:errors="*{code}" class="text-danger"
                                th:if="${#fields.hasErrors('code')}">
                             </p>
@@ -585,7 +598,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                    <button type="button" class="btn btn-primary">Enregistrer les modifications</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesButton">Enregistrer les modifications</button>
                 </div>
             </div>
         </div>
@@ -602,22 +615,102 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    Êtes-vous sûr de vouloir supprimer cette UE ?
+                    Êtes-vous sûr de vouloir supprimer l'UE <span class="font-15 font-weight-bold"
+                                                                  id="ueTitleToDelete"></span> ?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-danger">Je supprime</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Je supprime</button>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <script th:src="@{/assets/js/app.min.js}"></script>
-    <script th:src="@{/assets/js/page/index.js}"></script>
-    <script th:src="@{/assets/js/scripts.js}"></script>
-    <script th:src="@{/assets/js/custom.js}"></script>
+</div>
+<script th:src="@{/assets/js/app.min.js}"></script>
+<script th:src="@{/assets/js/page/index.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+<script th:src="@{/assets/js/custom.js}"></script>
 
+<script>
+    function prepareDelete(button) {
+        const ueId = button.getAttribute('data-id');
+        document.getElementById('ueTitleToDelete').innerText = button.getAttribute('data-code');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        confirmDeleteButton.setAttribute('onclick', `deleteUe(${ueId})`);
+    }
+
+    function deleteUe(ueId) {
+        fetch(`/dashboard/delete-ue/${ueId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                console.log('Réponse:', response);
+                if (response.ok) {
+                    document.getElementById(`card_${ueId}`).remove();
+                    $('#deleteUeModal').modal('hide');
+                    window.location.reload();
+                } else {
+                    console.log("Erreur lors de la suppression de l\'UE")
+                }
+            })
+            .catch(error => {
+                console.log('Une Erreur c\'est produite');
+            });
+    }
+
+    function populateUeModal() {
+        const ueId = document.getElementById('editUeId');
+        const ueCode = document.getElementById('editUeCode');
+        const ueTitle = document.getElementById('editUeTitle');
+        const ueDescription = document.getElementById('editUeDescription');
+
+        // Récupérer les valeurs des attributs data-*
+        const modalTrigger = event.currentTarget;
+        ueId.value = modalTrigger.getAttribute('data-id');
+        ueCode.value = modalTrigger.getAttribute('data-code');
+        ueTitle.value = modalTrigger.getAttribute('data-title');
+        ueDescription.value = modalTrigger.getAttribute('data-description');
+    }
+    document.getElementById('saveChangesButton').addEventListener('click', function() {
+        const ueId = document.getElementById('editUeId').value;
+        const ueCode = document.getElementById('editUeCode').value;
+        const ueTitle = document.getElementById('editUeTitle').value;
+        const ueDescription = document.getElementById('editUeDescription').value;
+
+        fetch(`/dashboard/update-ue/${ueId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: ueCode,
+                title: ueTitle,
+                description: ueDescription
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Recharge la page après la mise à jour réussie
+                    window.location.reload();
+                } else {
+                    console.error('Erreur lors de la mise à jour de l\'UE');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour de l\'UE', error);
+            });
+    });
+
+
+
+
+
+</script>
 </body>
 
 </html>

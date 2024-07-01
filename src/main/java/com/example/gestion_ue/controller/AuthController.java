@@ -2,7 +2,9 @@ package com.example.gestion_ue.controller;
 
 import com.example.gestion_ue.dto.UeDto;
 import com.example.gestion_ue.dto.UserDto;
+import com.example.gestion_ue.model.Ue;
 import com.example.gestion_ue.model.User;
+import com.example.gestion_ue.service.UeService;
 import com.example.gestion_ue.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +19,13 @@ import java.util.List;
 @Controller
 public class AuthController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final UeService ueService;
 
-    public AuthController(UserService userService) {
+
+    public AuthController(UserService userService, UeService ueService) {
         this.userService = userService;
+        this.ueService = ueService;
     }
 
     @GetMapping("index")
@@ -71,6 +76,8 @@ public class AuthController {
         List<UserDto> users = userService.findAllUsers();
         model.addAttribute("users", users);
         model.addAttribute("ues" ,ueDto);
+        List<Ue> listUes = ueService.getAllUes();
+        model.addAttribute("listUes", listUes);
         return "dashboard/index";
     }
 

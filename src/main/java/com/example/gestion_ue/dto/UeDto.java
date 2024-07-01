@@ -8,6 +8,8 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @Getter
 public class UeDto {
+    private Long id;
+
     // Getters and setters
     @NotEmpty(message = "Code de l'UE ne peut pas être vide")
     private String code;

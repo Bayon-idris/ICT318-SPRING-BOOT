@@ -13,18 +13,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class UeServiceImpl implements UeService {
 
     private final UeRepository ueRepository;
-    private final UserService userService;
 
     private final UserRepository userRepository;
 
     @Autowired
     public UeServiceImpl(UeRepository ueRepository, UserService userService, UserRepository userRepository) {
         this.ueRepository = ueRepository;
-        this.userService = userService;
         this.userRepository = userRepository;
     }
 
@@ -48,5 +49,34 @@ public class UeServiceImpl implements UeService {
     @Override
     public Boolean checkIfCodeExists(String code) {
         return ueRepository.existsByCode(code);
+    }
+
+    @Override
+    public List<Ue> getAllUes() {
+        return ueRepository.findAll();
+    }
+
+    @Override
+    public boolean deleteUe(Long id) {
+        if (ueRepository.existsById(id))
+        {
+            ueRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateUe(Long id, String code, String title, String description) {
+        Optional<Ue> ueOptional = ueRepository.findById(id);
+        if (ueOptional.isPresent()) {
+            Ue ue = ueOptional.get();
+            ue.setCode(code);
+            ue.setTitle(title);
+            ue.setDescription(description);
+            ueRepository.save(ue);
+            return true;
+        }
+        return false;
     }
 }

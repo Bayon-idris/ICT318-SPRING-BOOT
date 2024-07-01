@@ -39,11 +39,11 @@ public class Ue {
     }
 
     public String getCode() {
-        return code.toUpperCase();
+        return code ;
     }
 
     public void setCode(String code) {
-        this.code = code.toUpperCase();
+        this.code = code ;
     }
 
     public String getTitle() {
