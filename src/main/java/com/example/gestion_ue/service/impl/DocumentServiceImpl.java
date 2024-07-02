@@ -5,6 +5,7 @@ import com.example.gestion_ue.model.Document;
 import com.example.gestion_ue.repository.DocumentRepository;
 import com.example.gestion_ue.service.DocumentService;
 import com.example.gestion_ue.utils.Constant;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,13 +14,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
-
 
     public DocumentServiceImpl(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
@@ -37,14 +38,24 @@ public class DocumentServiceImpl implements DocumentService {
 
             try (FileOutputStream fout = new FileOutputStream(newFile)) {
                 fout.write(file.getBytes());
+
                 Document document = new Document();
                 document.setName(fileName);
-                document.setUrl(filePath.toString());
+                document.setUrl(filePath);
                 document.setCourse(course);
-//                documentRepository.save(document);
+                System.out.println("Course ID in document: " + course.getId());
+
+                documentRepository.save(document);
             } catch (IOException e) {
                 throw new IOException("Failed to save course file " + fileName, e);
             }
         }
     }
+
+    @Override
+    public List<Document> getAttachmentsByCourseId(Long courseId) {
+        return documentRepository.findByCourseId(courseId);
+    }
+
+
 }

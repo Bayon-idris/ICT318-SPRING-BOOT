@@ -377,49 +377,117 @@
                         </div>
                     </div>
 
-                    <div class="row mt-3">
-                        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
-                            <a th:href="@{/ues/{ueId}/courses(ueId=${ue.id})}" class="card-link">
-                                <div class="card card-hover" th:id="'card_' + ${ue.id}">
-                                    <div class="card-statistic-4">
-                                        <div class="align-items-center justify-content-between">
-                                            <div class="row">
-                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                                                    <div class="card-content">
-                                                        <h5 class="font-20"
-                                                            th:text="${ue.getCode().toUpperCase()}"></h5>
-                                                        <span class="mt-2 mb-3 font-15" th:text="${ue.title}"></span>
-                                                        <br>
-                                                        <span class="mt-2 mb-3 font-13"
-                                                              th:text="${ue.description}"></span>
+                    <div class="row mt-3" th:each="course : ${courses}">
+                        <div class="col-lg-8">
+                            <div class="card card-info">
+                                <div class="card-body">
+                                    <ul class="list-unstyled list-unstyled-border list-unstyled-noborder">
+                                        <li class="media">
+                                            <div class="media-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="media-title"
+                                                         th:text="${course.getTitle().toUpperCase()}"></div>
+                                                    <div class="text-time">
+                                                        Publié le <span
+                                                            th:text="${#dates.format(course.createdAt, 'dd MMMM yyyy')}"></span>
+                                                        à <span
+                                                            th:text="${#dates.format(course.createdAt, 'HH:mm')}"></span>
+                                                    </div>
+                                                    <div class="media-right">
+                                                        <span class="badge badge-info">
+                                                                <span th:text="${course.status}"></span>
+                                                            </span>
+                                                    </div>
+
+                                                </div>
+                                                <hr class="hr">
+                                                <div class="media-description text-muted"
+                                                     th:text="${course.getDescription()}">
+                                                </div>
+                                                <hr class="hr">
+                                                <div class="mt-3">
+                                                    <div class="f-12">
+                                                        Ce cours est destine a <strong
+                                                            th:text="${course.getNumberOfParticipants()}"></strong>
+                                                        participants. Les
+                                                        prérequis incluent entre autres des <strong
+                                                            th:text="${course.getPrerequisites()}"></strong>. Les
+                                                        objectifs vises donc a
+                                                        termes sont de <strong
+                                                            th:text="${course.getObjectives()}"></strong>. La langue du
+                                                        cours est <strong th:text="${course.getLanguage()}"> </strong>.
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                                                <hr class="hr">
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="media-links mt-3 text-white">
+                                                        <a href="#" class="btn btn-primary btn-sm mr-2">
+                                                            <i class="fas fa-share"></i> Share
+                                                        </a>
+                                                        <a href="#" class="btn btn-info btn-sm mr-2">
+                                                            <i class="fas fa-comment"></i> Commenter
+                                                        </a>
+                                                        <a href="#" class="btn btn-success btn-sm"
+                                                           data-toggle="modal"
+                                                           data-target="#attachmentsModal"
+                                                           th:attr="data-courseId=${course.id}">
+                                                            <i class="fas fa-file-alt"></i> Voir les fichiers du cours
+                                                        </a>
+                                                    </div>
+                                                    <div class="mt-3 ml-4">
+                                                        <p class="text-muted font-15"><a>Voir les 100 autres
+                                                            commentaires</a></p>
+                                                    </div>
                                                     <div class="ml-auto float-right mt-3">
-                                                        <button class="btn btn-info btn-sm" type="button"
-                                                                data-toggle="modal" data-target="#modifyUeModal"
-                                                                th:attr="data-id=${ue.id}, data-code=${ue.code}, data-title=${ue.title}, data-description=${ue.description}"
-                                                                onclick="populateUeModal()">
-                                                            <i class="fas fa-edit"></i>
+                                                        <button class="btn btn-info btn-sm" type="button">
+                                                            <i class="fas fa-eye"></i>
                                                         </button>
-
-
-                                                        <button class="btn btn-danger btn-sm" type="button"
-                                                                data-toggle="modal" data-target="#deleteUeModal"
-                                                                th:attr="data-id=${ue.id},data-code=${ue.code}"
-                                                                onclick="prepareDelete(this)">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-
                                                     </div>
                                                 </div>
+
                                             </div>
+
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card card-info">
+                                <div class="card-header d-flex justify-content-between align-items-center p-3">
+                                    <h5 class="mb-0">Chat messages</h5>
+                                </div>
+                                <div class="card-body" data-mdb-perfect-scrollbar-init
+                                     style="position: relative; height: 200px;">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="small mb-1">Timona Siera</p>
+                                        <p class="small mb-1 text-muted">23 Jan 2:00 pm</p>
+                                    </div>
+                                    <div class="d-flex flex-row justify-content-start">
+                                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava5-bg.webp"
+                                             alt="avatar 1" style="width: 45px; height: 100%;">
+                                        <div>
+                                            <p class="small p-2 ms-3 mb-3 rounded-3 bg-body-tertiary">For what reason
+                                                would it be advisable for me to think about business content?</p>
                                         </div>
                                     </div>
                                 </div>
-                            </a>
+                                <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+                                    <div class="input-group mb-0">
+                                        <input type="text" class="form-control" placeholder="Type message"
+                                               aria-label="Recipient's username" aria-describedby="button-addon2"/>
+                                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-warning"
+                                                type="button" id="button-addon2" style="padding-top: .55rem;">
+                                            Button
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
+
                 </div>
 
             </section>
@@ -540,7 +608,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="addCourseForm" th:action="@{/ues/{ueId}/courses/save(ueId=${ue.id})}" th:object="${courseDto}" method="post" enctype="multipart/form-data">
+                <form id="addCourseForm" th:action="@{/ues/{ueId}/courses/save(ueId=${ue.id})}" th:object="${courseDto}"
+                      method="post" enctype="multipart/form-data">
                     <div class="modal-body">
                         <input type="hidden" id="ueId" th:field="*{ue_id}" name="ueId" value="5">
                         <div class="form-group">
@@ -548,8 +617,63 @@
                             <input type="text" class="form-control" id="title" th:field="*{title}" required/>
                             <p class="text-danger" id="courseTitleError"></p>
                         </div>
+
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label for="courseType">Type de cours <span class="text-danger">*</span></label>
+                                <select class="form-control" id="courseType" name="courseType">
+                                    <option value="PRACTICAL">Cours Pratique</option>
+                                    <option value="THEORETICAL">Cours Théorique</option>
+                                </select>
+                                <p class="text-danger" id="courseTypeError"></p>
+
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="duration">Durée (heures) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="duration" placeholder="duree de ce cours"
+                                       name="duration" required>
+                                <p class="text-danger" id="durationError"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label for="numberOfParticipants">Nombre de participants <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="numberOfParticipants"
+                                       name="numberOfParticipants" placeholder="Nombre de participants" required>
+                                <p class="text-danger" id="numberOfParticipantsError"></p>
+
+                            </div>
+
+                            <div class="form-group col-6">
+                                <label for="language">Langue <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="language" name="language"
+                                       placeholder="langue du contenu du cours" required>
+                                <p class="text-danger" id="languageError"></p>
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label for="objectives">Objectifs <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="objectives" placeholder="objectifs vise"
+                                          name="objectives" rows="2"></textarea>
+                                <p class="text-danger" id="objectivesError"></p>
+
+                            </div>
+
+                            <div class="form-group col-6">
+                                <label for="prerequisites">Pré-requis <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="prerequisites"
+                                          placeholder="ce quil avoir avant de suivre ce cours" name="prerequisites"
+                                          rows="2"></textarea>
+                                <p class="text-danger" id="prerequisitesError"></p>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label for="description">Description du cours</label>
+                            <label for="description">Description du cours <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="description" th:field="*{description}"
                                       required></textarea>
                             <p class="text-danger" id="courseDescriptionError"></p>
@@ -572,6 +696,29 @@
                 </form>
             </div>
         </div>
+
+    </div>
+
+    <div class="modal fade" id="attachmentsModal" tabindex="-1" role="dialog" aria-labelledby="attachmentsModalLabel"
+         aria-hidden="true" th:fragment="attachmentsModal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="attachmentsModalLabel">Pièces jointes du cours</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group list-group-flush" id="attachmentsList">
+
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -586,15 +733,21 @@
     document.addEventListener('DOMContentLoaded', function () {
         const courseTitleInput = document.getElementById('title');
         const courseDescriptionInput = document.getElementById('description');
+        const courseTypeInput = document.getElementById('courseType');
+        const durationInput = document.getElementById('duration');
+        const numberOfParticipantsInput = document.getElementById('numberOfParticipants');
+        const languageInput = document.getElementById('language');
+        const objectivesInput = document.getElementById('objectives');
+        const prerequisitesInput = document.getElementById('prerequisites');
         const submitCourseBtn = document.getElementById('submitCourseBtn');
 
         function validateForm() {
-            let isValid = true; // Initialisé à true
+            let isValid = true;
 
             const courseTitleValue = courseTitleInput.value.trim();
             if (courseTitleValue === '') {
                 document.getElementById('courseTitleError').textContent = "Ce champ est requis.";
-                isValid = false; // Si le champ est vide, isValid devient false
+                isValid = false;
             } else {
                 document.getElementById('courseTitleError').textContent = "";
             }
@@ -602,17 +755,113 @@
             const courseDescriptionValue = courseDescriptionInput.value.trim();
             if (courseDescriptionValue === '') {
                 document.getElementById('courseDescriptionError').textContent = "Ce champ est requis.";
-                isValid = false; // Si le champ est vide, isValid devient false
+                isValid = false;
             } else {
                 document.getElementById('courseDescriptionError').textContent = "";
             }
 
-            submitCourseBtn.disabled = !isValid; // Désactive le bouton si isValid est false
+            const courseTypeValue = courseTypeInput.value;
+            if (courseTypeValue === '') {
+                document.getElementById('courseTypeError').textContent = "Veuillez sélectionner un type de cours.";
+                isValid = false;
+            } else {
+                document.getElementById('courseTypeError').textContent = "";
+            }
+
+            const durationValue = durationInput.value.trim();
+            if (durationValue === '') {
+                document.getElementById('durationError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('durationError').textContent = "";
+            }
+
+            const numberOfParticipantsValue = numberOfParticipantsInput.value.trim();
+            if (numberOfParticipantsValue === '') {
+                document.getElementById('numberOfParticipantsError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('numberOfParticipantsError').textContent = "";
+            }
+
+            const languageValue = languageInput.value.trim();
+            if (languageValue === '') {
+                document.getElementById('languageError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('languageError').textContent = "";
+            }
+
+            const objectivesValue = objectivesInput.value.trim();
+            if (objectivesValue === '') {
+                document.getElementById('objectivesError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('objectivesError').textContent = "";
+            }
+
+            const prerequisitesValue = prerequisitesInput.value.trim();
+            if (prerequisitesValue === '') {
+                document.getElementById('prerequisitesError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('prerequisitesError').textContent = "";
+            }
+
+            submitCourseBtn.disabled = !isValid;
         }
 
-        courseTitleInput.addEventListener('input', validateForm); // Écouteur pour le champ de titre
-        courseDescriptionInput.addEventListener('input', validateForm); // Écouteur pour le champ de description
-        validateForm(); // Appel initial pour vérifier l'état initial du formulaire
+        courseTitleInput.addEventListener('input', validateForm);
+        courseDescriptionInput.addEventListener('input', validateForm);
+        courseTypeInput.addEventListener('change', validateForm);
+        durationInput.addEventListener('input', validateForm);
+        numberOfParticipantsInput.addEventListener('input', validateForm);
+        languageInput.addEventListener('input', validateForm);
+        objectivesInput.addEventListener('input', validateForm);
+        prerequisitesInput.addEventListener('input', validateForm);
+
+        validateForm();
+    });
+
+    $(document).ready(function () {
+        $('[data-target="#attachmentsModal"]').click(function () {
+            var courseId = $(this).data('courseid');
+            var attachmentsList = $('#attachmentsList');
+
+            $.ajax({
+                url: '/courses/' + courseId + '/attachments',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    attachmentsList.empty();
+
+                    if (data.length > 0) {
+                        $.each(data, function (index, attachment) {
+                            var listItem = '<li class="list-group-item">' +
+                                '<div class="d-flex justify-content-between align-items-center">' +
+                                '<span>' + attachment.name + '</span>' +
+                                '<div>' +
+                                '<a href="http://localhost:8080/' + attachment.url + '" class="btn btn-sm btn-primary me-2" target="_blank">' +
+                                '<i class="fas fa-eye"></i>' +
+                                '</a>' +
+                                '<a href="' + attachment.url + '" class="btn btn-sm btn-primary me-2" download>' +
+                                '<i class="fas fa-download"></i>' +
+                                '</a>' +
+                                '</div>' +
+                                '</div>' +
+                                '</li>';
+                            attachmentsList.append(listItem);
+                        });
+                    } else {
+                        attachmentsList.append('<li class="list-group-item">Aucune pièce jointe disponible.</li>');
+                    }
+                },
+                error: function () {
+                    console.error('Erreur lors du chargement des pièces jointes.');
+                }
+            });
+
+        });
     });
 
 </script>

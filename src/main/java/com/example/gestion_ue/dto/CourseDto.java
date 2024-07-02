@@ -1,5 +1,7 @@
 package com.example.gestion_ue.dto;
 
+import com.example.gestion_ue.enums.CourseStatus;
+import com.example.gestion_ue.enums.CourseType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +19,12 @@ public class CourseDto {
     private String description;
 
     private Long ue_id;
+
+    private CourseType courseType;
+    private int duration;
+    private int numberOfParticipants;
+    private String prerequisites;
+    private String objectives;
+    private CourseStatus status;
+    private String language;
 }

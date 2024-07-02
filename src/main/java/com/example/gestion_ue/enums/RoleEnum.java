@@ -1,4 +1,4 @@
-package com.example.gestion_ue.role_enum;
+package com.example.gestion_ue.enums;
 
 public enum RoleEnum {
     ROLE_TEACHER("Enseignant"),
