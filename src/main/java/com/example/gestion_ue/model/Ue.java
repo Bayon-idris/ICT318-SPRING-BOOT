@@ -4,6 +4,7 @@ package com.example.gestion_ue.model;
 import jakarta.persistence.*;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Entity
 @Table(name = "ues")
@@ -74,5 +75,6 @@ public class Ue {
         return createdBy != null ? createdBy.getId() : null;
     }
 
-
+    @OneToMany(mappedBy = "ue", cascade = CascadeType.ALL)
+    private List<Course> courses;
 }

@@ -366,7 +366,7 @@
 
                     <div class="row mt-3">
                         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
-                            <a href="#" class="card-link">
+                            <a th:href="@{/ues/{ueId}/courses(ueId=${ue.id})}" class="card-link">
                                 <div class="card card-hover" th:id="'card_' + ${ue.id}">
                                     <div class="card-statistic-4">
                                         <div class="align-items-center justify-content-between">

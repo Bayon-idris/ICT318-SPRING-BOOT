@@ -33,21 +33,23 @@ public class SpringSecurity {
                         .requestMatchers("/dashboard/index").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.DELETE, "/dashboard/delete-ue/**").hasRole("TEACHER")
                         .requestMatchers("/dashboard/profile").authenticated()
+                        .requestMatchers("/ues/**").hasRole("TEACHER")  // Add this line
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/dashboard/index", true)  // Redirige après connexion réussie
+                        .defaultSuccessUrl("/dashboard/index", true)  // Redirect after successful login
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/login")  // Redirige après déconnexion
+                        .logoutSuccessUrl("/login")
                         .permitAll()
                 );
         return http.build();
     }
+
 
 
     @Autowired

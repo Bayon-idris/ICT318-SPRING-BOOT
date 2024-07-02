@@ -79,4 +79,9 @@ public class UeServiceImpl implements UeService {
         }
         return false;
     }
+
+    @Override
+    public Ue findById(Long id) {
+        return ueRepository.findById(id).orElse(null);
+    }
 }

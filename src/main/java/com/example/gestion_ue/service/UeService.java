@@ -19,4 +19,6 @@ public interface UeService {
 
     boolean updateUe(Long id, String code, String title, String description);
 
+     Ue findById(Long id) ;
+
 }
