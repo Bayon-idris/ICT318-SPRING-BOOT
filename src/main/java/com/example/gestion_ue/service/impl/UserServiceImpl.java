@@ -1,7 +1,6 @@
 package com.example.gestion_ue.service.impl;
 
 import com.example.gestion_ue.dto.UserDto;
-import com.example.gestion_ue.model.Role;
 import com.example.gestion_ue.model.User;
 import com.example.gestion_ue.model.UserRole;
 import com.example.gestion_ue.repository.RoleRepository;
@@ -10,9 +9,6 @@ import com.example.gestion_ue.repository.UserRoleRepository;
 import com.example.gestion_ue.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -49,12 +45,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
+
     @Override
-    public List<UserDto> findAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream().map((user) -> convertEntityToDto(user))
-                .collect(Collectors.toList());
+    public void deleteUser(Long userId) {
+        userRepository.markUserAsDeleted(userId);
     }
+
 
     private UserDto convertEntityToDto(User user) {
         UserDto userDto = new UserDto();
@@ -64,5 +60,21 @@ public class UserServiceImpl implements UserService {
         userDto.setEmail(user.getEmail());
         return userDto;
     }
+
+
+    @Override
+    public boolean updateEmailAndUsername(User user, String newEmail , String newUsername) {
+        user.setUsername(newUsername);
+        user.setEmail(newEmail);
+        userRepository.save(user);
+        return false;
+    }
+
+    @Override
+    public void updatePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 
 }

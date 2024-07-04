@@ -37,6 +37,10 @@ public class User {
     @Column(nullable = false)
     private boolean isDeleted = false;
 
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 
     @JoinTable(
@@ -45,12 +49,9 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")})
     private List<Role> roles = new ArrayList<>();
 
+    @Setter
     @Getter
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Ue> ues = new HashSet<>();
-
-    public void setUes(Set<Ue> ues) {
-        this.ues = ues;
-    }
 
 }

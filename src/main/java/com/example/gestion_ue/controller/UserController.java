@@ -2,28 +2,30 @@ package com.example.gestion_ue.controller;
 
 import com.example.gestion_ue.dto.UeDto;
 import com.example.gestion_ue.dto.UserDto;
+import com.example.gestion_ue.dto.UserUpdateDto;
 import com.example.gestion_ue.model.Ue;
 import com.example.gestion_ue.model.User;
 import com.example.gestion_ue.service.UeService;
 import com.example.gestion_ue.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @Controller
-public class AuthController {
+public class UserController {
 
     private final UserService userService;
     private final UeService ueService;
 
 
-    public AuthController(UserService userService, UeService ueService) {
+    public UserController(UserService userService, UeService ueService) {
         this.userService = userService;
         this.ueService = ueService;
     }
@@ -73,9 +75,7 @@ public class AuthController {
     @GetMapping("dashboard/index")
     public String listRegisteredUsers(Model model) {
         UeDto ueDto = new UeDto();
-        List<UserDto> users = userService.findAllUsers();
-        model.addAttribute("users", users);
-        model.addAttribute("ues" ,ueDto);
+        model.addAttribute("ues", ueDto);
         List<Ue> listUes = ueService.getAllUes();
         model.addAttribute("listUes", listUes);
         return "dashboard/index";
@@ -87,7 +87,45 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public String showProfilePage() {
+    public String showProfilePage(Model model) {
+        UserDto user = new UserDto();
+        model.addAttribute("user", user);
         return "dashboard/profile";
     }
+
+    @DeleteMapping("/user/delete")
+    public ResponseEntity<String> deleteUserAccount() {
+        User user = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        userService.deleteUser(user.getId());
+        return ResponseEntity.ok("User deleted successfully");
+    }
+
+    @PostMapping("/update-user")
+    public ResponseEntity<String> updateUser(@ModelAttribute("userUpdateDto") @Valid UserUpdateDto userUpdateDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("Erreur de validation");
+        }
+
+        String email = userUpdateDto.getEmail();
+        String username = userUpdateDto.getUsername();
+
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(currentUserEmail);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Utilisateur non trouvé");
+        }
+
+        boolean updated = userService.updateEmailAndUsername(user, email, username);
+
+        if (updated) {
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Échec de la mise à jour de l'utilisateur");
+        }
+    }
+
+
+
+
 }
