@@ -4,10 +4,13 @@ import com.example.gestion_ue.dto.CourseDto;
 import com.example.gestion_ue.enums.CourseStatus;
 import com.example.gestion_ue.model.Course;
 import com.example.gestion_ue.model.Ue;
+import com.example.gestion_ue.model.User;
 import com.example.gestion_ue.repository.DocumentRepository;
 import com.example.gestion_ue.service.CourseService;
 import com.example.gestion_ue.service.DocumentService;
 import com.example.gestion_ue.service.UeService;
+import com.example.gestion_ue.service.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +28,17 @@ public class CourseController {
     private final CourseService courseService;
     private final UeService ueService;
 
+    private  final UserService userService;
+
     private final DocumentRepository documentRepository;
 
     private final DocumentService documentService;
 
 
-    public CourseController(CourseService courseService, UeService ueService, DocumentRepository documentRepository, DocumentService documentService) {
+    public CourseController(CourseService courseService, UeService ueService, UserService userService, DocumentRepository documentRepository, DocumentService documentService) {
         this.courseService = courseService;
         this.ueService = ueService;
+        this.userService = userService;
         this.documentRepository = documentRepository;
         this.documentService = documentService;
     }
@@ -45,11 +51,13 @@ public class CourseController {
 //        List<Course> activeCourses = courses.stream()
 //                .filter(course -> course.getStatus().equals(CourseStatus.ACTIVE))
 //                .collect(Collectors.toList());
-
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(currentUserEmail);
         if (ue != null) {
             model.addAttribute("courses", courses);
             model.addAttribute("ue", ue);
             model.addAttribute("courseDto", new CourseDto());
+            model.addAttribute("user",user);
             return "dashboard/courses/index";
         } else {
             return "redirect:/dashboard/index";

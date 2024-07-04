@@ -75,6 +75,8 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
-
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 
 }

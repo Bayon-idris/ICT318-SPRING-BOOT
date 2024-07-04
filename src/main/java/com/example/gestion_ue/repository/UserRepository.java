@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query("UPDATE User u SET u.isDeleted = true WHERE u.id = :userId")
     void markUserAsDeleted(Long userId);
+
+
 }

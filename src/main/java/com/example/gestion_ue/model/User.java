@@ -1,5 +1,6 @@
 package com.example.gestion_ue.model;
 
+import com.example.gestion_ue.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -53,5 +54,11 @@ public class User {
     @Getter
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Ue> ues = new HashSet<>();
+
+    @Setter
+    @Getter
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private RoleEnum role;
 
 }
