@@ -30,10 +30,10 @@ public class SpringSecurity {
         http.csrf().disable()
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/register/**", "/index").permitAll()
-                        .requestMatchers("/dashboard/index").hasRole("TEACHER")
+                        .requestMatchers("/dashboard/index").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/dashboard/delete-ue/**").hasRole("TEACHER")
                         .requestMatchers("/dashboard/profile").authenticated()
-                        .requestMatchers("/ues/**").hasRole("TEACHER")  // Add this line
+                        .requestMatchers("/ues/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

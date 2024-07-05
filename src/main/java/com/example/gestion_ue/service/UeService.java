@@ -3,8 +3,8 @@ package com.example.gestion_ue.service;
 import com.example.gestion_ue.dto.UeDto;
 import com.example.gestion_ue.model.Ue;
 import com.example.gestion_ue.model.User;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UeService {
     void saveUe(UeDto ueDto);
@@ -13,7 +13,7 @@ public interface UeService {
 
     User getUserByUsername(String username);
 
-    List<Ue> getAllUes();
+    Page<Ue> getAllUes(Pageable pageable);
 
     boolean deleteUe(Long id);
 

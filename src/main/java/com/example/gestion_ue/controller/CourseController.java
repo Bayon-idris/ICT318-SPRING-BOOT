@@ -10,6 +10,8 @@ import com.example.gestion_ue.service.CourseService;
 import com.example.gestion_ue.service.DocumentService;
 import com.example.gestion_ue.service.UeService;
 import com.example.gestion_ue.service.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/ues")
@@ -29,8 +35,6 @@ public class CourseController {
 
     private final UserService userService;
 
-    private final DocumentRepository documentRepository;
-
     private final DocumentService documentService;
 
 
@@ -38,7 +42,6 @@ public class CourseController {
         this.courseService = courseService;
         this.ueService = ueService;
         this.userService = userService;
-        this.documentRepository = documentRepository;
         this.documentService = documentService;
     }
 
@@ -47,16 +50,24 @@ public class CourseController {
         List<Course> courses = courseService.findByUeId(ueId);
         Ue ue = ueService.findById(ueId);
 
-//        List<Course> activeCourses = courses.stream()
-//                .filter(course -> course.getStatus().equals(CourseStatus.ACTIVE))
-//                .collect(Collectors.toList());
+        List<Course> activeCourses = courses.stream()
+                .filter(course -> course.getStatus() == CourseStatus.ACTIVE || course.getStatus() == CourseStatus.ONGOING)
+                .toList();
+
+
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.findByEmail(currentUserEmail);
         if (ue != null) {
-            model.addAttribute("courses", courses);
+            model.addAttribute("courses", activeCourses);
             model.addAttribute("ue", ue);
             model.addAttribute("courseDto", new CourseDto());
             model.addAttribute("user", user);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+            for (GrantedAuthority authority : authorities) {
+                String role = authority.getAuthority();
+                model.addAttribute("userRole", role);
+            }
             return "dashboard/courses/index";
         } else {
             return "redirect:/dashboard/index";
@@ -78,14 +89,18 @@ public class CourseController {
         course.setObjectives(courseDto.getObjectives());
         course.setStatus(CourseStatus.CREATED);
         course.setLanguage(courseDto.getLanguage());
-
+        if (course.getCreatedAt() == null) {
+            course.setCreatedAt(new Date());
+        }
         Ue ue = ueService.findById(ueId);
         if (ue != null) {
             course.setUe(ue);
             courseService.saveCourse(course);
             if (course.getId() != null) {
                 try {
-                    documentService.saveDocuments(courseFiles, course);
+                   if(courseFiles != null){
+                       documentService.saveDocuments(courseFiles, course);
+                   }
                 } catch (IOException e) {
                     System.out.println("Failed to save course files. " + e.getMessage());
                 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:tr="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -25,65 +25,123 @@
             <section class="section">
                 <div class="section-body">
                     <div class="row justify-content-between">
-                        <div class="col-md-10">
+                        <div th:classappend="${#strings.contains(userRole, 'ROLE_TEACHER')} ? 'col-md-10' : 'col-md-12'">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb bg-primary text-white-all">
-                                    <li class="breadcrumb-item"><a th:href="@{dashboard/index}"><i class="fas fa-tachometer-alt"></i>
-                                        Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-book"></i>Mes Ues</a></li>
+                                    <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i
+                                            class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-book"></i> Mes Ues</a></li>
                                 </ol>
                             </nav>
                         </div>
-                        <div class="col-md-auto">
+                        <div th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}" class="col-md-auto">
                             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addUeModal">
                                 <i class="fas fa-plus"></i> Ajouter une UE
                             </button>
                         </div>
                     </div>
 
-                    <div class="row mt-3">
-                        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
-                            <a th:href="@{/ues/{ueId}/courses(ueId=${ue.id})}" class="card-link">
-                                <div class="card card-hover" th:id="'card_' + ${ue.id}">
-                                    <div class="card-statistic-4">
-                                        <div class="align-items-center justify-content-between">
-                                            <div class="row">
-                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                                                    <div class="card-content">
-                                                        <h5 class="font-20"
-                                                            th:text="${ue.getCode().toUpperCase()}"></h5>
-                                                        <span class="mt-2 mb-3 font-15" th:text="${ue.title}"></span>
-                                                        <br>
-                                                        <span class="mt-2 mb-3 font-13"
-                                                              th:text="${ue.description}"></span>
+
+                    <div class="row mt-3" th:if="${listUes.empty}">
+                        <div class="col-12 text-center">
+                            <p class="font-15" th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}">Aucune UE
+                                disponible. Veuillez en ajouter.</p>
+                            <p class="font-15" th:if="${#strings.contains(userRole, 'ROLE_STUDENT')}">Pas d' uniite d'enseignement
+                                disponibles. Veuillez contacter l'enseignant si c'est une erreur.</p>
+                        </div>
+                    </div>
+
+
+                    <div th:unless="${listUes.empty}">
+                        <div class="row mt-3">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
+                                <a th:href="@{/ues/{ueId}/courses(ueId=${ue.id})}" class="card-link">
+                                    <div class="card card-hover" th:id="'card_' + ${ue.id}">
+                                        <div class="card-statistic-4">
+                                            <div class="align-items-center justify-content-between">
+                                                <div class="row">
+                                                    <div th:classappend="${#authorization.expression('hasRole(''ROLE_TEACHER'')')} ? 'col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3' :  'col-lg-12 col-md-12 col-sm-12 col-xs-12'">
+                                                        <div class="card-content">
+                                                            <h5 class="font-20"
+                                                                th:text="${ue.getCode().toUpperCase()}"></h5>
+                                                            <span class="mt-2 mb-3 font-15" th:text="${ue.title}"></span>
+                                                            <br>
+                                                            <span class="mt-2 mb-3 font-13"
+                                                                  th:text="${ue.description}"></span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                                                    <div class="ml-auto float-right mt-3">
-                                                        <button class="btn btn-info btn-sm" type="button"
-                                                                data-toggle="modal" data-target="#modifyUeModal"
-                                                                th:attr="data-id=${ue.id}, data-code=${ue.code}, data-title=${ue.title}, data-description=${ue.description}"
-                                                                onclick="populateUeModal()">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
+                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0"
+                                                         th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}">
+                                                        <div class="ml-auto float-right mt-3">
+                                                            <button class="btn btn-info btn-sm" type="button"
+                                                                    data-toggle="modal" data-target="#modifyUeModal"
+                                                                    th:attr="data-id=${ue.id}, data-code=${ue.code}, data-title=${ue.title}, data-description=${ue.description}"
+                                                                    onclick="populateUeModal()">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
 
 
-                                                        <button class="btn btn-danger btn-sm" type="button"
-                                                                data-toggle="modal" data-target="#deleteUeModal"
-                                                                th:attr="data-id=${ue.id},data-code=${ue.code}"
-                                                                onclick="prepareDelete(this)">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
+                                                            <button class="btn btn-danger btn-sm" type="button"
+                                                                    data-toggle="modal" data-target="#deleteUeModal"
+                                                                    th:attr="data-id=${ue.id},data-code=${ue.code}"
+                                                                    onclick="prepareDelete(this)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
 
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </a>
+                                </a>
+                            </div>
+
                         </div>
+                        <nav aria-label="Page navigation" class="mt-2">
+                            <ul class="pagination justify-content-end">
+                                <li th:class="${page.first ? 'page-item disabled' : 'page-item'}">
+                                    <a class="page-link"
+                                       th:href="@{${'/dashboard/index'}(page=${0}, size=${page.size})}"
+                                       aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                </li>
+                                <li th:class="${page.first ? 'page-item disabled' : 'page-item'}">
+                                    <a class="page-link"
+                                       th:href="@{${'/dashboard/index'}(page=${page.number - 1}, size=${page.size})}"
+                                       aria-label="Previous">
+                                        <span aria-hidden="true">&lt;</span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                </li>
+                                <li th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                                    th:class="${page.number == i ? 'page-item active' : 'page-item'}">
+                                    <a class="page-link"
+                                       th:href="@{${'/dashboard/index'}(page=${i}, size=${page.size})}"
+                                       th:text="${i + 1}"></a>
+                                </li>
+                                <li th:class="${page.last ? 'page-item disabled' : 'page-item'}">
+                                    <a class="page-link"
+                                       th:href="@{${'/dashboard/index'}(page=${page.number + 1}, size=${page.size})}"
+                                       aria-label="Next">
+                                        <span aria-hidden="true">&gt;</span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </li>
+                                <li th:class="${page.last ? 'page-item disabled' : 'page-item'}">
+                                    <a class="page-link"
+                                       th:href="@{${'/dashboard/index'}(page=${page.totalPages - 1}, size=${page.size})}"
+                                       aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
+
                 </div>
 
             </section>
@@ -166,7 +224,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                    <button type="button" class="btn btn-primary" id="saveChangesButton">Enregistrer les modifications</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesButton">Enregistrer les modifications
+                    </button>
                 </div>
 
             </div>
@@ -310,12 +369,11 @@
     });
 
 
-
     document.addEventListener('DOMContentLoaded', function () {
         const ueCodeField = document.getElementById('ueCode');
 
         ueCodeField.addEventListener('input', function () {
-            const ueCode = ueCodeField.value.trim();
+            const ueCode = ueCodeField.value.replace("\\s+", "").lowerCase();
 
             fetch(`/dashboard/check-ue-code/${ueCode}`)
                 .then(response => response.json())

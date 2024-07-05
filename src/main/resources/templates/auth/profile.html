@@ -20,6 +20,17 @@
         <div th:replace="fragments/sidebar :: sidebar"></div>
 
         <div class="main-content">
+            <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-primary text-white-all">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i
+                        class="fas fa-tachometer-alt"></i>
+                    Dashboard</a></li>
+                <li class="breadcrumb-item">
+                    <a href="#">
+                        <i class="fas fa-person-booth"></i>Profile</a>
+                </li>
+            </ol>
+            </nav>
             <section class="section">
                 <div class="card card-info">
                     <div class="container-xl  px-4 mt-4">
@@ -91,8 +102,13 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6>Role:</h6>
-                                            <span class="badge badge-info"
-                                                  th:text="${#authentication.principal.authorities[0].authority}"></span>
+                                            <div>
+                                                <span th:if="${#authentication.principal.authorities[0].authority == 'ROLE_TEACHER'}"
+                                                      class="badge badge-info">Teacher</span>
+                                                <span th:if="${#authentication.principal.authorities[0].authority == 'ROLE_STUDENT'}"
+                                                      class="badge badge-success">Student</span>
+                                            </div>
+
                                         </div>
                                         <form id="userUpdateForm" method="POST" class="form-horizontal"
                                               th:action="@{/update-user}">

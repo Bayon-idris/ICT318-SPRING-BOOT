@@ -1,59 +1,447 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Se Connecter</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <script>
-        function validateLoginForm() {
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Dashboard - Gestion des UE et Cours</title>
+    <link rel="stylesheet" th:href="@{/assets/css/app.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/components.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/custom.css}">
+</head>
+
+<body>
+<div class="loader "></div>
+<div id="app">
+    <div class="main-wrapper main-wrapper-1">
+
+        <div th:replace="fragments/header :: header"></div>
+
+        <div th:replace="fragments/sidebar :: sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <section class="section">
+                <div class="section-body">
+                    <div class="row justify-content-between">
+                        <div th:classappend="${#strings.contains(userRole, 'ROLE_TEACHER')} ? 'col-md-10' : 'col-md-12'">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb bg-primary text-white-all">
+                                    <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i
+                                            class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-book"></i> Mes Ues</a></li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}" class="col-md-auto">
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addUeModal">
+                                <i class="fas fa-plus"></i> Ajouter une UE
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-3">
+                        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
+                            <a th:href="@{/ues/{ueId}/courses(ueId=${ue.id})}" class="card-link">
+                                <div class="card" th:id="'card_' + ${ue.id}">
+                                    <div class="card-statistic-4">
+                                        <div class="align-items-center justify-content-between">
+                                            <div class="row">
+                                                <div th:classappend="${#authorization.expression('hasRole(''ROLE_TEACHER'')')} ? 'col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3' :  'col-lg-12 col-md-12 col-sm-12 col-xs-12'">
+                                                    <div class="card-content">
+                                                        <h5 class="font-20"
+                                                            th:text="${ue.getCode().toUpperCase()}"></h5>
+                                                        <span class="mt-2 mb-3 font-15" th:text="${ue.title}"></span>
+                                                        <br>
+                                                        <span class="mt-2 mb-3 font-13"
+                                                              th:text="${ue.description}"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0"
+                                                     th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}">
+                                                    <div class="ml-auto float-right mt-3">
+                                                        <button class="btn btn-info btn-sm" type="button"
+                                                                data-toggle="modal" data-target="#modifyUeModal"
+                                                                th:attr="data-id=${ue.id}, data-code=${ue.code}, data-title=${ue.title}, data-description=${ue.description}"
+                                                                onclick="populateUeModal()">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+
+
+                                                        <button class="btn btn-danger btn-sm" type="button"
+                                                                data-toggle="modal" data-target="#deleteUeModal"
+                                                                th:attr="data-id=${ue.id},data-code=${ue.code}"
+                                                                onclick="prepareDelete(this)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <nav aria-label="Page navigation" class="mt-2">
+                        <ul class="pagination justify-content-end">
+                            <li th:class="${page.first ? 'page-item disabled' : 'page-item'}">
+                                <a class="page-link" th:href="@{${'/dashboard/index'}(page=${0}, size=${page.size})}"
+                                   aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            <li th:class="${page.first ? 'page-item disabled' : 'page-item'}">
+                                <a class="page-link"
+                                   th:href="@{${'/dashboard/index'}(page=${page.number - 1}, size=${page.size})}"
+                                   aria-label="Previous">
+                                    <span aria-hidden="true">&lt;</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                                th:class="${page.number == i ? 'page-item active' : 'page-item'}">
+                                <a class="page-link" th:href="@{${'/dashboard/index'}(page=${i}, size=${page.size})}"
+                                   th:text="${i + 1}"></a>
+                            </li>
+                            <li th:class="${page.last ? 'page-item disabled' : 'page-item'}">
+                                <a class="page-link"
+                                   th:href="@{${'/dashboard/index'}(page=${page.number + 1}, size=${page.size})}"
+                                   aria-label="Next">
+                                    <span aria-hidden="true">&gt;</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                            <li th:class="${page.last ? 'page-item disabled' : 'page-item'}">
+                                <a class="page-link"
+                                   th:href="@{${'/dashboard/index'}(page=${page.totalPages - 1}, size=${page.size})}"
+                                   aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </section>
+            <div th:replace="fragments/setting :: setting"></div>
+        </div>
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+
+    <!-- MODAL AJOUT D'UNE UE -->
+    <div class="modal fade" id="addUeModal" tabindex="-1" aria-labelledby="addUeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form th:action="@{/dashboard/add-ues}" th:object="${ues}" method="post" id="addUeForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUeModalLabel">Ajouter une UE</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="ueCode">Code de l'UE <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ueCode" th:field="*{code}" placeholder="ICT300"
+                                   required>
+                            <p class="text-danger" id="ueCodeError"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="ueTitle">Libellé de l'UE <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ueTitle" th:field="*{title}"
+                                   placeholder="UE Projet" required>
+                            <p class="text-danger" id="ueTitleError"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="ueDescription">Description</label>
+                            <textarea class="form-control" id="ueDescription" th:field="*{description}"
+                                      placeholder="Description de l'UE" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="reset" class="btn btn-warning" value="Réinitialiser"/>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Enregistrer</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Editing UE -->
+    <div class="modal fade" id="modifyUeModal" tabindex="-1" aria-labelledby="modifyUeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modifyUeModalLabel">Modifier l'UE</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="modifyUeForm">
+                        <div class="form-group">
+                            <label for="editUeId">ID de l'UE</label>
+                            <input type="text" class="form-control" id="editUeId" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUeCode">Code de l'UE <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editUeCode" required>
+                            <p class="text-danger" id="ueCodeUpdateError"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUeTitle">Libellé de l'UE <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editUeTitle" required>
+                            <p class="text-danger" id="ueTitleUpdateError"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUeDescription">Description</label>
+                            <textarea class="form-control" id="editUeDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesButton">Enregistrer les modifications
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Deleting UE -->
+    <div class="modal fade" id="deleteUeModal" tabindex="-1" aria-labelledby="deleteUeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteUeModalLabel">Confirmation de suppression</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir supprimer l'UE <span class="font-15 font-weight-bold"
+                                                                  id="ueTitleToDelete"></span> ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Je supprime</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script th:src="@{/assets/js/app.min.js}"></script>
+<script th:src="@{/assets/js/page/index.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+<script th:src="@{/assets/js/custom.js}"></script>
+
+<script>
+    function prepareDelete(button) {
+        const ueId = button.getAttribute('data-id');
+        document.getElementById('ueTitleToDelete').innerText = button.getAttribute('data-code');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        confirmDeleteButton.setAttribute('onclick', `deleteUe(${ueId})`);
+    }
+
+    function deleteUe(ueId) {
+        fetch(`/dashboard/delete-ue/${ueId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`card_${ueId}`).remove();
+                    $('#deleteUeModal').modal('hide');
+                    window.location.reload();
+                } else {
+                    console.log("Erreur lors de la suppression de l\'UE")
+                }
+            })
+            .catch(error => {
+                console.log('Une Erreur c\'est produite');
+            });
+    }
+
+    function populateUeModal() {
+        const ueId = document.getElementById('editUeId');
+        const ueCode = document.getElementById('editUeCode');
+        const ueTitle = document.getElementById('editUeTitle');
+        const ueDescription = document.getElementById('editUeDescription');
+
+        // Récupérer les valeurs des attributs data-*
+        const modalTrigger = event.currentTarget;
+        ueId.value = modalTrigger.getAttribute('data-id');
+        ueCode.value = modalTrigger.getAttribute('data-code');
+        ueTitle.value = modalTrigger.getAttribute('data-title');
+        ueDescription.value = modalTrigger.getAttribute('data-description');
+    }
+
+    document.getElementById('saveChangesButton').addEventListener('click', function () {
+        const ueId = document.getElementById('editUeId').value;
+        const ueCode = document.getElementById('editUeCode').value;
+        const ueTitle = document.getElementById('editUeTitle').value;
+        const ueDescription = document.getElementById('editUeDescription').value;
+
+        fetch(`/dashboard/update-ue/${ueId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: ueCode,
+                title: ueTitle,
+                description: ueDescription
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Recharge la page après la mise à jour réussie
+                    window.location.reload();
+                } else {
+                    console.error('Erreur lors de la mise à jour de l\'UE');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour de l\'UE', error);
+            });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const ueCodeInput = document.getElementById('ueCode');
+        const ueTitleInput = document.getElementById('ueTitle');
+        const ueDescriptionInput = document.getElementById('ueDescription');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function validateFields() {
             let isValid = true;
 
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const ueCodeValue = ueCodeInput.value.trim();
+            if (ueCodeValue === '') {
+                document.getElementById('ueCodeError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueCodeError').textContent = "";
+            }
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            document.getElementById('usernameError').innerText = username === '' ? 'L\'adresse email est requise' : (!emailRegex.test(username) ? 'L\'adresse email n\'est pas valide' : '');
-            document.getElementById('passwordError').innerText = password === '' ? 'Le mot de passe est requis' : '';
-
-            isValid = isValid && username !== '' && emailRegex.test(username);
-            isValid = isValid && password !== '';
-
-            document.getElementById('loginButton').disabled = !isValid;
+            const ueTitleValue = ueTitleInput.value.trim();
+            if (ueTitleValue === '') {
+                document.getElementById('ueTitleError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueTitleError').textContent = "";
+            }
+            submitBtn.disabled = !isValid;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input').forEach(element => {
-                element.addEventListener('input', validateLoginForm);
-            });
-            validateLoginForm();
+        ueCodeInput.addEventListener('input', validateFields);
+        ueTitleInput.addEventListener('input', validateFields);
+        ueDescriptionInput.addEventListener('input', validateFields);
+        validateFields();
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ueCodeField = document.getElementById('ueCode');
+
+        ueCodeField.addEventListener('input', function () {
+            const ueCode = ueCodeField.value.replace("\\s+", "").lowerCase();
+
+            fetch(`/dashboard/check-ue-code/${ueCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    const ueCodeError = document.getElementById('ueCodeError');
+                    if (data.exists) {
+                        ueCodeError.textContent = 'Ce code d\'UE existe déjà.';
+                        document.getElementById('submitBtn').disabled = true;
+                    } else {
+                        ueCodeError.textContent = '';
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la vérification du code d\'UE:', error);
+                });
         });
-    </script>
-</head>
-<body>
-<div class="card">
-    <div class="card-header">
-        <h3 class="text-center">Se Connecter</h3>
-    </div>
-    <div class="card-body">
-        <form method="post" th:action="@{/login}" class="form-horizontal" role="form">
-            <div class="mb-3">
-                <label for="username" class="control-label">Email <span class="text-danger">*</span></label>
-                <input type="text" id="username" name="username" class="form-control" placeholder="Email" />
-                <p id="usernameError" class="text-danger"></p>
-            </div>
+    });
 
-            <div class="mb-3">
-                <label for="password" class="control-label">Mot de passe <span class="text-danger">*</span></label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Mot de passe" />
-                <p id="passwordError" class="text-danger"></p>
-            </div>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editUeCodeInput = document.getElementById('editUeCode');
+        const editUeTitleInput = document.getElementById('editUeTitle');
+        const saveChangesButton = document.getElementById('saveChangesButton');
 
-            <div class="form-group mb-3 d-flex justify-content-between">
-                <button type="submit" id="loginButton" class="btn btn-primary w-50">Connexion</button>
-                <span>Pas encore inscrit ? <a th:href="@{/register}">S'inscrire ici</a></span>
-            </div>
-        </form>
-    </div>
-</div>
+        function validateForm() {
+            let isValid = true;
+
+            const editUeCodeValue = editUeCodeInput.value.trim();
+            if (editUeCodeValue === '') {
+                document.getElementById('ueCodeUpdateError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueCodeUpdateError').textContent = "";
+            }
+
+            const editUeTitleValue = editUeTitleInput.value.trim();
+            if (editUeTitleValue === '') {
+                document.getElementById('ueTitleUpdateError').textContent = "Ce champ est requis.";
+                isValid = false;
+            } else {
+                document.getElementById('ueTitleUpdateError').textContent = "";
+            }
+
+            saveChangesButton.disabled = !isValid;
+        }
+
+        function handleInputValidation(event) {
+            const target = event.target;
+            if (target === editUeCodeInput || target === editUeTitleInput) {
+                validateForm();
+            }
+        }
+
+        editUeCodeInput.addEventListener('input', handleInputValidation);
+        editUeTitleInput.addEventListener('input', handleInputValidation);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ueCodeField = document.getElementById('editUeCode');
+        document.getElementById('saveChangesButton').disabled = true;
+
+        ueCodeField.addEventListener('input', function () {
+            const ueCode = ueCodeField.value.trim();
+
+            fetch(`/dashboard/check-ue-code/${ueCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    const ueCodeError = document.getElementById('ueCodeUpdateError');
+                    if (data.exists) {
+                        ueCodeError.textContent = 'Ce code d\'UE existe déjà.';
+                        document.getElementById('saveChangesButton').disabled = true;
+                    } else {
+                        ueCodeError.textContent = '';
+                        document.getElementById('saveChangesButton').disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la vérification du code d\'UE:', error);
+                });
+        });
+    });
+
+
+</script>
 </body>
+
 </html>

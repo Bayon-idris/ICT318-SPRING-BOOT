@@ -7,8 +7,13 @@ import com.example.gestion_ue.model.Ue;
 import com.example.gestion_ue.model.User;
 import com.example.gestion_ue.service.UeService;
 import com.example.gestion_ue.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 @Controller
@@ -76,11 +82,24 @@ public class UserController {
 
 
     @GetMapping("dashboard/index")
-    public String listRegisteredUsers(Model model) {
+    public String listRegisteredUsers(Model model, @PageableDefault(size = 10) Pageable pageable) {
         UeDto ueDto = new UeDto();
+
         model.addAttribute("ues", ueDto);
-        List<Ue> listUes = ueService.getAllUes();
+
+        Page<Ue> uesPage = ueService.getAllUes(pageable);
+        List<Ue> listUes = uesPage.getContent();
+
         model.addAttribute("listUes", listUes);
+        model.addAttribute("page", uesPage); // Ajoute la page à l'objet Model pour la pagination
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+        for (GrantedAuthority authority : authorities) {
+            String role = authority.getAuthority();
+            model.addAttribute("userRole", role);
+        }
+
         return "dashboard/index";
     }
 
@@ -93,7 +112,7 @@ public class UserController {
     public String showProfilePage(Model model) {
         UserDto user = new UserDto();
         model.addAttribute("user", user);
-        return "dashboard/profile";
+        return "auth/profile";
     }
 
     @DeleteMapping("/user/delete")

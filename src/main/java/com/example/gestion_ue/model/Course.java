@@ -5,6 +5,8 @@ import com.example.gestion_ue.enums.CourseType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,8 +53,8 @@ public class Course {
 
     private String language;
 
+    @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private Date createdAt;
-
 }

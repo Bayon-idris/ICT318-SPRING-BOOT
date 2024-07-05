@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="UTF-8">
@@ -40,12 +40,10 @@
             <section class="section">
                 <div class="section-body">
                     <div class="row justify-content-between">
-                        <div class="col-md-10">
-                            <p style="display: none" id="currentUserValue" th:text="${user.id}"></p>
-
+                        <div th:classappend="${#strings.contains(userRole, 'ROLE_TEACHER')} ? 'col-md-10' : 'col-md-12'">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb bg-primary text-white-all">
-                                    <li class="breadcrumb-item"><a th:href="@{dashboard/index}"><i
+                                    <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i
                                             class="fas fa-tachometer-alt"></i>
                                         Dashboard</a></li>
                                     <li class="breadcrumb-item">
@@ -61,11 +59,20 @@
                                 </ol>
                             </nav>
                         </div>
-                        <div class="col-md-auto">
+                        <div th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}" class="col-md-auto">
                             <button type="button" class="btn btn-success" data-toggle="modal"
                                     data-target="#addCourseModal">
                                 <i class="fas fa-plus"></i> Ajouter un cours à cette UE
                             </button>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" th:if="${courses.empty}">
+                        <div class="col-12 text-center">
+                            <p class="font-15" th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}">Aucun cours
+                                disponible. Veuillez en ajouter.</p>
+                            <p class="font-15" th:if="${#strings.contains(userRole, 'ROLE_STUDENT')}">Pas de cours
+                                disponibles. Veuillez contacter l'enseignant si c'est une erreur.</p>
                         </div>
                     </div>
 
@@ -86,9 +93,12 @@
                                                             th:text="${#dates.format(course.createdAt, 'HH:mm')}"></span>
                                                     </div>
                                                     <div class="media-right">
-                                                        <span class="badge badge-info">
-                                                                <span th:text="${course.status}"></span>
-                                                            </span>
+                                                       <span th:class="${course.status == T(com.example.gestion_ue.enums.CourseStatus).ACTIVE ? 'badge badge-success' :
+                                                                     course.status == T(com.example.gestion_ue.enums.CourseStatus).ONGOING ? 'badge badge-warning' :
+                                                                     course.status == T(com.example.gestion_ue.enums.CourseStatus).COMPLETED ? 'badge badge-primary' :
+                                                                     'badge badge-secondary'}">
+                                                            <span th:text="${course.status}"></span>
+                                                        </span>
                                                     </div>
 
                                                 </div>
@@ -120,7 +130,8 @@
 
                                                         <button href="#" class="btn btn-warning btn-sm mr-2 btn-comment"
                                                                 th:attr="data-course-id=${course.id}, data-course-name=${course.title}"
-                                                                data-toggle="modal" data-target="#commentModal" onclick="saveCourseId(this)">
+                                                                data-toggle="modal" data-target="#commentModal"
+                                                                onclick="saveCourseId(this)">
                                                             <i class="fas fa-comment"></i> Commenter
                                                         </button>
 
@@ -136,7 +147,7 @@
                                                         <p class="text-muted font-15"><a>Voir les 100 autres
                                                             commentaires</a></p>
                                                     </div>
-                                                    <div class="ml-auto float-right mt-3">
+                                                    <div class="ml-auto float-right mt-3" sec:authorize="hasRole('ROLE_TEACHER')">
                                                         <button class="btn btn-info btn-sm" type="button">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
@@ -561,5 +572,5 @@
 
 
 </script>
-</body>
+</body>ide
 </html>

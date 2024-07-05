@@ -9,11 +9,11 @@ import com.example.gestion_ue.service.UeService;
 import com.example.gestion_ue.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,19 +23,21 @@ public class UeServiceImpl implements UeService {
 
     private final UserRepository userRepository;
 
+    private final UserService userService;
+
     @Autowired
-    public UeServiceImpl(UeRepository ueRepository, UserService userService, UserRepository userRepository) {
+    public UeServiceImpl(UeRepository ueRepository, UserService userService, UserRepository userRepository, UserService userService1) {
         this.ueRepository = ueRepository;
         this.userRepository = userRepository;
+        this.userService = userService1;
     }
 
     @Override
     public void saveUe(UeDto ueDto) {
         Ue ue = new Ue();
         BeanUtils.copyProperties(ueDto, ue);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-        User user = getUserByUsername(currentUsername);
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(currentUserEmail);
         ue.setCreatedBy(user);
         ueRepository.save(ue);
     }
@@ -52,8 +54,8 @@ public class UeServiceImpl implements UeService {
     }
 
     @Override
-    public List<Ue> getAllUes() {
-        return ueRepository.findAll();
+    public Page<Ue> getAllUes(Pageable pageable) {
+        return ueRepository.findAll(pageable);
     }
 
     @Override

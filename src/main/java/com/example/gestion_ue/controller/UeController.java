@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -26,10 +27,10 @@ public class UeController {
     }
 
     @PostMapping("/add-ues")
-    public String saveUe(@Valid @ModelAttribute("ueDto") UeDto ueDto, HttpServletRequest request, Model model) {
+    public RedirectView saveUe(@Valid @ModelAttribute("ueDto") UeDto ueDto, HttpServletRequest request, Model model) {
         ueDto.setCode(ueDto.getCode().replaceAll("\\s+", "").toLowerCase());
         ueService.saveUe(ueDto);
-        return "redirect:" + request.getHeader("Referer");
+        return new RedirectView("/dashboard/index");
     }
 
     @GetMapping("/check-ue-code/{code}")

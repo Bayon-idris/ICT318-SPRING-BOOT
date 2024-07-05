@@ -1,6 +1,5 @@
 package com.example.gestion_ue.model;
 
-import com.example.gestion_ue.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,7 +34,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Setter
     @Column(nullable = false)
     private boolean isDeleted = false;
 
@@ -47,9 +45,12 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")})
     private List<Role> roles = new ArrayList<>();
 
-    @Setter
     @Getter
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Ue> ues = new HashSet<>();
+
+    public void setUes(Set<Ue> ues) {
+        this.ues = ues;
+    }
 
 }

@@ -2,11 +2,15 @@ package com.example.gestion_ue.model;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "ues")
 public class Ue {
 
@@ -29,47 +33,7 @@ public class Ue {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
-    // Getters and Setters
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code ;
-    }
-
-    public void setCode(String code) {
-        this.code = code ;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
 
     public Long getUserId() {
         return createdBy != null ? createdBy.getId() : null;
