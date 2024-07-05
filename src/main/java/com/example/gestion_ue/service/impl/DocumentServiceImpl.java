@@ -5,7 +5,6 @@ import com.example.gestion_ue.model.Document;
 import com.example.gestion_ue.repository.DocumentRepository;
 import com.example.gestion_ue.service.DocumentService;
 import com.example.gestion_ue.utils.Constant;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;

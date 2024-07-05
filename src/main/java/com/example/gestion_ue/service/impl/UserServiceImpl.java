@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public boolean updateEmailAndUsername(User user, String newEmail , String newUsername) {
+    public boolean updateEmailAndUsername(User user, String newEmail, String newUsername) {
         user.setUsername(newUsername);
         user.setEmail(newEmail);
         userRepository.save(user);
@@ -75,6 +75,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }

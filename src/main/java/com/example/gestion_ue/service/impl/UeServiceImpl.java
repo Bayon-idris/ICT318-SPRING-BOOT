@@ -58,8 +58,7 @@ public class UeServiceImpl implements UeService {
 
     @Override
     public boolean deleteUe(Long id) {
-        if (ueRepository.existsById(id))
-        {
+        if (ueRepository.existsById(id)) {
             ueRepository.deleteById(id);
             return true;
         } else {

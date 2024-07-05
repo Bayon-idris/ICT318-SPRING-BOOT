@@ -3,7 +3,6 @@ package com.example.gestion_ue.security;
 import com.example.gestion_ue.model.Role;
 import com.example.gestion_ue.model.User;
 import com.example.gestion_ue.repository.UserRepository;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

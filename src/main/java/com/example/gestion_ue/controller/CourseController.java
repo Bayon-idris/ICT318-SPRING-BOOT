@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/ues")
@@ -28,7 +27,7 @@ public class CourseController {
     private final CourseService courseService;
     private final UeService ueService;
 
-    private  final UserService userService;
+    private final UserService userService;
 
     private final DocumentRepository documentRepository;
 
@@ -57,7 +56,7 @@ public class CourseController {
             model.addAttribute("courses", courses);
             model.addAttribute("ue", ue);
             model.addAttribute("courseDto", new CourseDto());
-            model.addAttribute("user",user);
+            model.addAttribute("user", user);
             return "dashboard/courses/index";
         } else {
             return "redirect:/dashboard/index";
