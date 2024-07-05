@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Register - Gestion des UE et Cours</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" th:fragment="header">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/static}">Système de Gestion des UE et Cours</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+<br />
+<br />
+<br />
+<div class="container justify-content-center align-center">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-center">Creation de compte</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" role="form" th:action="@{/register/save}" th:object="${user}">
+                <div class="form-group mb-3">
+                    <label class="form-label">Prénom<span class="text-danger">*</span></label>
+                    <input class="form-control" id="firstName" name="firstName" placeholder="Entrez votre prénom" th:field="*{firstName}" type="text" />
+                    <p id="firstNameError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Nom<span class="text-danger">*</span></label>
+                    <input class="form-control" id="lastName" name="lastName" placeholder="Entrez votre nom de famille" th:field="*{lastName}" type="text" />
+                    <p id="lastNameError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Email<span class="text-danger">*</span></label>
+                    <input class="form-control" id="email" name="email" placeholder="Entrez votre adresse email" th:field="*{email}" type="email" />
+                    <p id="emailError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Mot de passe<span class="text-danger">*</span></label>
+                    <input class="form-control" id="password" name="password" placeholder="Entrez votre mot de passe" th:field="*{password}" type="password" />
+                    <p id="passwordError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Confirmez le mot de passe<span class="text-danger">*</span></label>
+                    <input class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirmez votre mot de passe" th:field="*{confirmPassword}" type="password" />
+                    <p id="confirmPasswordError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Je suis un :<span class="text-danger">*</span></label>
+                    <select class="form-select" id="role" name="role" th:field="*{role}">
+                        <option value="" selected>Sélectionner un rôle</option>
+                        <option value="1">Enseignant</option>
+                        <option value="2">Élève</option>
+                    </select>
+                    <p id="roleError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group mb-3 d-flex justify-content-between">
+                    <button class="btn btn-primary w-50" id="submitButton" type="submit">S'inscrire</button>
+                    <span>Déjà inscrit ? <a href="/static" th:href="@{/login}">Connectez-vous ici</a></span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function validateForm() {
+        let isValid = true;
+
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const role = document.getElementById('role').value.trim();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=]).*$/;
+
+        document.getElementById('firstNameError').innerText = firstName === '' ? 'Le prénom est requis' : '';
+        document.getElementById('lastNameError').innerText = lastName === '' ? 'Le nom de famille est requis' : '';
+        document.getElementById('emailError').innerText = email === '' ? 'L\'adresse email est requise' : (!emailRegex.test(email) ? 'L\'adresse email n\'est pas valide' : '');
+        document.getElementById('passwordError').innerText = password === '' ? 'Le mot de passe est requis' : (!passwordRegex.test(password) ? 'Le mot de passe doit contenir au moins un chiffre, une lettre et un caractère spécial' : '');
+        document.getElementById('confirmPasswordError').innerText = confirmPassword === '' ? 'La confirmation du mot de passe est requise' : (password !== confirmPassword ? 'Les mots de passe ne correspondent pas' : '');
+        document.getElementById('roleError').innerText = role === '' ? 'Le rôle est requis' : '';
+
+        isValid = isValid && firstName !== '';
+        isValid = isValid && lastName !== '';
+        isValid = isValid && email !== '' && emailRegex.test(email);
+        isValid = isValid && password !== '' && passwordRegex.test(password);
+        isValid = isValid && confirmPassword !== '' && password === confirmPassword;
+        isValid = isValid && role !== '';
+
+        document.getElementById('submitButton').disabled = !isValid;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('input', validateForm);
+        });
+        validateForm();
+    });
+</script>
+</body>
+</html>

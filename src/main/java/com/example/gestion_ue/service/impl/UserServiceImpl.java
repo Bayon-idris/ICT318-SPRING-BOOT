@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         User userResult = findByEmail(userDto.getEmail());
         userRoleRepository.save(new UserRole(userResult.getId(), userDto.getRole()));
-
     }
 
     @Override

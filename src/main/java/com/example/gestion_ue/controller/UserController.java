@@ -40,7 +40,7 @@ public class UserController {
 
     @GetMapping("/login")
     public String loginForm() {
-        return "login";
+        return "auth/login";
     }
 
     // handler method to handle user registration request
@@ -48,7 +48,7 @@ public class UserController {
     public String showRegistrationForm(Model model) {
         UserDto user = new UserDto();
         model.addAttribute("user", user);
-        return "register";
+        return "auth/register";
     }
 
     // handler method to handle register user form submit request
@@ -68,7 +68,7 @@ public class UserController {
         }
         if (result.hasErrors()) {
             model.addAttribute("user", user);
-            return "register";
+            return "auth/register";
         }
         userService.saveUser(user);
         return "redirect:/login";

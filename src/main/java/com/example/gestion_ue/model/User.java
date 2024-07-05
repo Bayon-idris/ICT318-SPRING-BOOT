@@ -35,12 +35,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Setter
     @Column(nullable = false)
     private boolean isDeleted = false;
-
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
-    }
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 
@@ -54,11 +51,5 @@ public class User {
     @Getter
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Ue> ues = new HashSet<>();
-
-    @Setter
-    @Getter
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private RoleEnum role;
 
 }

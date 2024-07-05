@@ -55,7 +55,7 @@ public class CommentController {
                 UserDto userDto = new UserDto();
                 userDto.setId(user.getId());
                 userDto.setLastName(user.getUsername());
-                userDto.setRole(user.getRole().name());
+//                userDto.setRole(user.getRole().name());
                 commentDto.setUser(userDto);
             }
             commentDtos.add(commentDto);
