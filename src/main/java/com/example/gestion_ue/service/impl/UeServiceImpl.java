@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -84,5 +85,10 @@ public class UeServiceImpl implements UeService {
     @Override
     public Ue findById(Long id) {
         return ueRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Ue> findByCreatedById(Long userId) {
+        return ueRepository.findByCreatedById(userId);
     }
 }

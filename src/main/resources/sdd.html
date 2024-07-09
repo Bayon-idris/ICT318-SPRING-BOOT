@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Publications</title>
+    <link rel="stylesheet" href="path/to/bootstrap.css">
+</head>
+<body>
+<!-- Your existing HTML for the table -->
+<div class="card-body">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Duration</th>
+                <th>Participants</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="course : ${courses}">
+                <td th:text="${course.title}">Title</td>
+                <td th:text="${course.description}">Description</td>
+                <td th:text="${course.duration}">Duration</td>
+                <td th:text="${course.numberOfParticipants}">Participants</td>
+                <td>
+                        <span th:class="${course.status == T(com.example.gestion_ue.enums.CourseStatus).ACTIVE ? 'badge badge-success' :
+                                         course.status == T(com.example.gestion_ue.enums.CourseStatus).ONGOING ? 'badge badge-warning' :
+                                         course.status == T(com.example.gestion_ue.enums.CourseStatus).COMPLETED ? 'badge badge-primary' :
+                                         'badge badge-secondary'}">
+                            <span th:text="${course.status}"></span>
+                        </span>
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="deleteCourse(${course.id})">Delete</button>
+                    <button class="btn btn-warning" onclick="changeStatus(${course.id}, 'ONGOING')">Change to Ongoing</button>
+                    <button class="btn btn-success" onclick="changeStatus(${course.id}, 'COMPLETED')">Change to Completed</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function deleteCourse(courseId) {
+        if (confirm("Are you sure you want to delete this course?")) {
+            fetch(`/dashboard/courses/${courseId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Course deleted successfully");
+                        location.reload(); // Reload the page to see the changes
+                    } else {
+                        alert("Failed to delete the course");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while deleting the course");
+                });
+        }
+    }
+
+    function changeStatus(courseId, newStatus) {
+        fetch(`/dashboard/courses/${courseId}/status?status=${newStatus}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Course status updated successfully");
+                    location.reload(); // Reload the page to see the changes
+                } else {
+                    alert("Failed to update course status");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while updating the course status");
+            });
+    }
+</script>
+</body>
+</html>

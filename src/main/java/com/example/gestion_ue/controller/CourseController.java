@@ -20,11 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/ues")
@@ -98,9 +97,9 @@ public class CourseController {
             courseService.saveCourse(course);
             if (course.getId() != null) {
                 try {
-                   if(courseFiles != null){
-                       documentService.saveDocuments(courseFiles, course);
-                   }
+                    if (courseFiles != null) {
+                        documentService.saveDocuments(courseFiles, course);
+                    }
                 } catch (IOException e) {
                     System.out.println("Failed to save course files. " + e.getMessage());
                 }
@@ -111,6 +110,37 @@ public class CourseController {
             System.out.println("UE with ID " + ueId + " not found.");
         }
         return "redirect:/ues/" + ueId + "/courses";
+    }
+
+    @GetMapping("/courses/publications")
+    public String getCoursesByUserId(Model model) {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(currentUserEmail);
+        List<Ue> ues = ueService.findByCreatedById(user.getId());
+        List<Course> courses = new ArrayList<>();
+        for (Ue ue : ues) {
+            List<Course> ueCourses = courseService.findByUeId(ue.getId());
+            courses.addAll(ueCourses);
+        }
+        model.addAttribute("courses", courses);
+        model.addAttribute("ues", ues);
+        model.addAttribute("user", user);
+
+        return "dashboard/courses/publications";
+    }
+
+    @DeleteMapping("/courses/{courseId}")
+    @ResponseBody
+    public String deleteCourse(@PathVariable Long courseId) {
+        courseService.deleteCourse(courseId);
+        return "{\"status\":\"success\"}";
+    }
+
+    @PutMapping("/courses/{courseId}/status")
+    @ResponseBody
+    public String updateCourseStatus(@PathVariable Long courseId, @RequestParam CourseStatus status) {
+        courseService.updateCourseStatus(courseId, status);
+        return "{\"status\":\"success\"}";
     }
 
 }

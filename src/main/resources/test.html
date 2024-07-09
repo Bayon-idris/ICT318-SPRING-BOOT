@@ -1,447 +1,660 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">-->
 
-<head>
-    <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>Dashboard - Gestion des UE et Cours</title>
-    <link rel="stylesheet" th:href="@{/assets/css/app.min.css}">
-    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
-    <link rel="stylesheet" th:href="@{/assets/css/components.css}">
-    <link rel="stylesheet" th:href="@{/assets/css/custom.css}">
-</head>
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">-->
+<!--    <title>Dashboard - Gestion des UE et Cours</title>-->
+<!--    <link rel="stylesheet" th:href="@{/assets/css/app.min.css}">-->
+<!--    <link rel="stylesheet" th:href="@{/assets/css/style.css}">-->
+<!--    <link rel="stylesheet" th:href="@{/assets/css/components.css}">-->
+<!--    <link rel="stylesheet" th:href="@{/assets/css/custom.css}">-->
 
-<body>
-<div class="loader "></div>
-<div id="app">
-    <div class="main-wrapper main-wrapper-1">
+<!--    <style>-->
+<!--        .comment-section {-->
+<!--            position: relative;-->
+<!--            height: 200px;-->
+<!--            overflow-y: auto;-->
+<!--        }-->
 
-        <div th:replace="fragments/header :: header"></div>
+<!--        .comment-section hr {-->
+<!--            margin: 5px 0;-->
+<!--        }-->
 
-        <div th:replace="fragments/sidebar :: sidebar"></div>
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <section class="section">
-                <div class="section-body">
-                    <div class="row justify-content-between">
-                        <div th:classappend="${#strings.contains(userRole, 'ROLE_TEACHER')} ? 'col-md-10' : 'col-md-12'">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb bg-primary text-white-all">
-                                    <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i
-                                            class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-book"></i> Mes Ues</a></li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}" class="col-md-auto">
-                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addUeModal">
-                                <i class="fas fa-plus"></i> Ajouter une UE
-                            </button>
-                        </div>
-                    </div>
+<!--<div class="loader "></div>-->
+<!--<div id="app">-->
+<!--    <div class="main-wrapper main-wrapper-1">-->
 
 
-                    <div class="row mt-3">
-                        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12" th:each="ue : ${listUes}">
-                            <a th:href="@{/ues/{ueId}/courses(ueId=${ue.id})}" class="card-link">
-                                <div class="card" th:id="'card_' + ${ue.id}">
-                                    <div class="card-statistic-4">
-                                        <div class="align-items-center justify-content-between">
-                                            <div class="row">
-                                                <div th:classappend="${#authorization.expression('hasRole(''ROLE_TEACHER'')')} ? 'col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3' :  'col-lg-12 col-md-12 col-sm-12 col-xs-12'">
-                                                    <div class="card-content">
-                                                        <h5 class="font-20"
-                                                            th:text="${ue.getCode().toUpperCase()}"></h5>
-                                                        <span class="mt-2 mb-3 font-15" th:text="${ue.title}"></span>
-                                                        <br>
-                                                        <span class="mt-2 mb-3 font-13"
-                                                              th:text="${ue.description}"></span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0"
-                                                     th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}">
-                                                    <div class="ml-auto float-right mt-3">
-                                                        <button class="btn btn-info btn-sm" type="button"
-                                                                data-toggle="modal" data-target="#modifyUeModal"
-                                                                th:attr="data-id=${ue.id}, data-code=${ue.code}, data-title=${ue.title}, data-description=${ue.description}"
-                                                                onclick="populateUeModal()">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
+<!--        <div th:replace="fragments/header :: header"></div>-->
+
+<!--        <div th:replace="fragments/sidebar :: sidebar"></div>-->
 
 
-                                                        <button class="btn btn-danger btn-sm" type="button"
-                                                                data-toggle="modal" data-target="#deleteUeModal"
-                                                                th:attr="data-id=${ue.id},data-code=${ue.code}"
-                                                                onclick="prepareDelete(this)">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
+<!--        &lt;!&ndash; Main Content &ndash;&gt;-->
+<!--        <div class="main-content">-->
+<!--            <section class="section">-->
+<!--                <div class="section-body">-->
+<!--                    <div class="row justify-content-between">-->
+<!--                        <div th:classappend="${#strings.contains(userRole, 'ROLE_TEACHER')} ? 'col-md-10' : 'col-md-12'">-->
+<!--                            <nav aria-label="breadcrumb">-->
+<!--                                <ol class="breadcrumb bg-primary text-white-all">-->
+<!--                                    <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i-->
+<!--                                            class="fas fa-tachometer-alt"></i>-->
+<!--                                        Dashboard</a></li>-->
+<!--                                    <li class="breadcrumb-item">-->
+<!--                                        <a href="#">-->
+<!--                                            <i class="fas fa-book"></i>-->
+<!--                                            <span th:text="${ue.title}">Nom de l'UE</span>-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                    <li class="breadcrumb-item">-->
+<!--                                        <i class="fas fa-list-alt"></i>-->
+<!--                                        Liste des cours-->
+<!--                                    </li>-->
+<!--                                </ol>-->
+<!--                            </nav>-->
+<!--                        </div>-->
+<!--                        <div th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}" class="col-md-auto">-->
+<!--                            <button type="button" class="btn btn-success" data-toggle="modal"-->
+<!--                                    data-target="#addCourseModal">-->
+<!--                                <i class="fas fa-plus"></i> Ajouter un cours à cette UE-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <nav aria-label="Page navigation" class="mt-2">
-                        <ul class="pagination justify-content-end">
-                            <li th:class="${page.first ? 'page-item disabled' : 'page-item'}">
-                                <a class="page-link" th:href="@{${'/dashboard/index'}(page=${0}, size=${page.size})}"
-                                   aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                            </li>
-                            <li th:class="${page.first ? 'page-item disabled' : 'page-item'}">
-                                <a class="page-link"
-                                   th:href="@{${'/dashboard/index'}(page=${page.number - 1}, size=${page.size})}"
-                                   aria-label="Previous">
-                                    <span aria-hidden="true">&lt;</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                            </li>
-                            <li th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
-                                th:class="${page.number == i ? 'page-item active' : 'page-item'}">
-                                <a class="page-link" th:href="@{${'/dashboard/index'}(page=${i}, size=${page.size})}"
-                                   th:text="${i + 1}"></a>
-                            </li>
-                            <li th:class="${page.last ? 'page-item disabled' : 'page-item'}">
-                                <a class="page-link"
-                                   th:href="@{${'/dashboard/index'}(page=${page.number + 1}, size=${page.size})}"
-                                   aria-label="Next">
-                                    <span aria-hidden="true">&gt;</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                            <li th:class="${page.last ? 'page-item disabled' : 'page-item'}">
-                                <a class="page-link"
-                                   th:href="@{${'/dashboard/index'}(page=${page.totalPages - 1}, size=${page.size})}"
-                                   aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+<!--                    <div class="row mt-3" th:if="${courses.empty}">-->
+<!--                        <div class="col-12 text-center">-->
+<!--                            <p class="font-15" th:if="${#strings.contains(userRole, 'ROLE_TEACHER')}">Aucun cours-->
+<!--                                disponible. Veuillez en ajouter.</p>-->
+<!--                            <p class="font-15" th:if="${#strings.contains(userRole, 'ROLE_STUDENT')}">Pas de cours-->
+<!--                                disponibles. Veuillez contacter l'enseignant si c'est une erreur.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-            </section>
-            <div th:replace="fragments/setting :: setting"></div>
-        </div>
-        <div th:replace="fragments/footer :: footer"></div>
-    </div>
+<!--                    <div class="row mt-3" th:each="course : ${courses}">-->
+<!--                        <div class="col-lg-8">-->
+<!--                            <div class="card card-info">-->
+<!--                                <div class="card-body">-->
+<!--                                    <ul class="list-unstyled list-unstyled-border list-unstyled-noborder">-->
+<!--                                        <li class="media">-->
+<!--                                            <div class="media-body">-->
+<!--                                                <div class="d-flex justify-content-between align-items-center mb-1">-->
+<!--                                                    <div class="media-title"-->
+<!--                                                         th:text="${course.getTitle().toUpperCase()}"></div>-->
+<!--                                                    <div class="text-time">-->
+<!--                                                        Publié le <span-->
+<!--                                                            th:text="${#dates.format(course.createdAt, 'dd MMMM yyyy')}"></span>-->
+<!--                                                        à <span-->
+<!--                                                            th:text="${#dates.format(course.createdAt, 'HH:mm')}"></span>-->
+<!--                                                    </div>-->
+<!--                                                    <div class="media-right">-->
+<!--                                                       <span th:class="${course.status == T(com.example.gestion_ue.enums.CourseStatus).ACTIVE ? 'badge badge-success' :-->
+<!--                                                                     course.status == T(com.example.gestion_ue.enums.CourseStatus).ONGOING ? 'badge badge-warning' :-->
+<!--                                                                     course.status == T(com.example.gestion_ue.enums.CourseStatus).COMPLETED ? 'badge badge-primary' :-->
+<!--                                                                     'badge badge-secondary'}">-->
+<!--                                                            <span th:text="${course.status}"></span>-->
+<!--                                                        </span>-->
+<!--                                                    </div>-->
 
-    <!-- MODAL AJOUT D'UNE UE -->
-    <div class="modal fade" id="addUeModal" tabindex="-1" aria-labelledby="addUeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form th:action="@{/dashboard/add-ues}" th:object="${ues}" method="post" id="addUeForm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addUeModalLabel">Ajouter une UE</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="ueCode">Code de l'UE <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="ueCode" th:field="*{code}" placeholder="ICT300"
-                                   required>
-                            <p class="text-danger" id="ueCodeError"></p>
-                        </div>
-                        <div class="form-group">
-                            <label for="ueTitle">Libellé de l'UE <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="ueTitle" th:field="*{title}"
-                                   placeholder="UE Projet" required>
-                            <p class="text-danger" id="ueTitleError"></p>
-                        </div>
-                        <div class="form-group">
-                            <label for="ueDescription">Description</label>
-                            <textarea class="form-control" id="ueDescription" th:field="*{description}"
-                                      placeholder="Description de l'UE" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="reset" class="btn btn-warning" value="Réinitialiser"/>
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Enregistrer</button>
-                    </div>
-
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal for Editing UE -->
-    <div class="modal fade" id="modifyUeModal" tabindex="-1" aria-labelledby="modifyUeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modifyUeModalLabel">Modifier l'UE</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="modifyUeForm">
-                        <div class="form-group">
-                            <label for="editUeId">ID de l'UE</label>
-                            <input type="text" class="form-control" id="editUeId" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="editUeCode">Code de l'UE <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="editUeCode" required>
-                            <p class="text-danger" id="ueCodeUpdateError"></p>
-                        </div>
-                        <div class="form-group">
-                            <label for="editUeTitle">Libellé de l'UE <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="editUeTitle" required>
-                            <p class="text-danger" id="ueTitleUpdateError"></p>
-                        </div>
-                        <div class="form-group">
-                            <label for="editUeDescription">Description</label>
-                            <textarea class="form-control" id="editUeDescription" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                    <button type="button" class="btn btn-primary" id="saveChangesButton">Enregistrer les modifications
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Deleting UE -->
-    <div class="modal fade" id="deleteUeModal" tabindex="-1" aria-labelledby="deleteUeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteUeModalLabel">Confirmation de suppression</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Êtes-vous sûr de vouloir supprimer l'UE <span class="font-15 font-weight-bold"
-                                                                  id="ueTitleToDelete"></span> ?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Je supprime</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--                                                </div>-->
+<!--                                                <hr class="hr">-->
+<!--                                                <div class="media-description text-muted"-->
+<!--                                                     th:text="${course.getDescription()}">-->
+<!--                                                </div>-->
+<!--                                                <hr class="hr">-->
+<!--                                                <div class="mt-3">-->
+<!--                                                    <div class="f-12">-->
+<!--                                                        Ce cours est destine a <strong-->
+<!--                                                            th:text="${course.getNumberOfParticipants()}"></strong>-->
+<!--                                                        participants. Les-->
+<!--                                                        prérequis incluent entre autres des <strong-->
+<!--                                                            th:text="${course.getPrerequisites()}"></strong>. Les-->
+<!--                                                        objectifs vises donc a-->
+<!--                                                        termes sont de <strong-->
+<!--                                                            th:text="${course.getObjectives()}"></strong>. La langue du-->
+<!--                                                        cours est <strong th:text="${course.getLanguage()}"> </strong>.-->
+<!--                                                    </div>-->
+<!--                                                </div>-->
+<!--                                                <hr class="hr">-->
+<!--                                                <div class="d-flex justify-content-between">-->
+<!--                                                    <div class="media-links mt-3 text-white">-->
+<!--                                                        <button href="#" class="btn btn-primary btn-sm mr-2">-->
+<!--                                                            <i class="fas fa-share"></i> Share-->
+<!--                                                        </button>-->
 
 
-</div>
-<script th:src="@{/assets/js/app.min.js}"></script>
-<script th:src="@{/assets/js/page/index.js}"></script>
-<script th:src="@{/assets/js/scripts.js}"></script>
-<script th:src="@{/assets/js/custom.js}"></script>
+<!--                                                        <button href="#" class="btn btn-warning btn-sm mr-2 btn-comment"-->
+<!--                                                                th:attr="data-course-id=${course.id}, data-course-name=${course.title}"-->
+<!--                                                                data-toggle="modal" data-target="#commentModal"-->
+<!--                                                                onclick="saveCourseId(this)">-->
+<!--                                                            <i class="fas fa-comment"></i> Commenter-->
+<!--                                                        </button>-->
 
-<script>
-    function prepareDelete(button) {
-        const ueId = button.getAttribute('data-id');
-        document.getElementById('ueTitleToDelete').innerText = button.getAttribute('data-code');
-        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-        confirmDeleteButton.setAttribute('onclick', `deleteUe(${ueId})`);
+
+<!--                                                        <button href="#" class="btn btn-success btn-sm "-->
+<!--                                                                data-toggle="modal"-->
+<!--                                                                data-target="#attachmentsModal"-->
+<!--                                                                th:attr="data-courseId=${course.id}">-->
+<!--                                                            <i class="fas fa-file-alt"></i> Voir les fichiers du cours-->
+<!--                                                        </button>-->
+<!--                                                    </div>-->
+<!--                                                    <div class="mt-3 ml-4">-->
+<!--                                                        <p class="text-muted font-15"><a>Voir les 100 autres-->
+<!--                                                            commentaires</a></p>-->
+<!--                                                    </div>-->
+<!--                                                    <div class="ml-auto float-right mt-3"-->
+<!--                                                         sec:authorize="hasRole('ROLE_TEACHER')">-->
+<!--                                                        <button class="btn btn-info btn-sm" type="button">-->
+<!--                                                            <i class="fas fa-eye"></i>-->
+<!--                                                        </button>-->
+<!--                                                    </div>-->
+<!--                                                </div>-->
+
+<!--                                            </div>-->
+
+<!--                                        </li>-->
+<!--                                    </ul>-->
+
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="col-lg-4">-->
+<!--                            <div class="card card-info" style="max-height: 400px">-->
+<!--                                <div class="card-header d-flex justify-content-between align-items-center p-3">-->
+<!--                                    <h5 class="mb-0">Commentaire pour : <span-->
+<!--                                            th:text="${course.getTitle().toLowerCase()}"></span></h5>-->
+<!--                                </div>-->
+<!--                                <div class="card-body comment-section" data-mdb-perfect-scrollbar-init-->
+<!--                                     th:data-course-id="${course.id}" style="position: relative; height: 400px">-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+
+<!--                    </div>-->
+
+<!--                </div>-->
+
+<!--            </section>-->
+<!--            <div th:replace="fragments/setting :: setting"></div>-->
+<!--        </div>-->
+<!--        <div th:replace="fragments/footer :: footer"></div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Modal &ndash;&gt;-->
+<!--    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel"-->
+<!--         aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-dialog-centered" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="commentModalLabel">Commenter ce cours : <span-->
+<!--                            id="courseNameSpan"></span></h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <form id="commentForm" th:action="@{/comments/add}" method="POST">-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="commentText">Votre commentaire</label>-->
+<!--                            <textarea class="form-control" id="commentText" name="commentText" rows="4"-->
+<!--                                      required></textarea>-->
+<!--                        </div>-->
+<!--                        <input type="hidden" id="courseId" name="courseId">-->
+<!--                        <button type="submit" class="btn btn-primary">Publier</button>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-lg">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="addCourseModalLabel">Ajouter un cours à l'UE <span-->
+<!--                            th:text="${ue.title}">Nom de l'UE</span></h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--                <form id="addCourseForm" th:action="@{/ues/{ueId}/courses/save(ueId=${ue.id})}" th:object="${courseDto}"-->
+<!--                      method="post" enctype="multipart/form-data">-->
+<!--                    <div class="modal-body">-->
+<!--                        <input type="hidden" id="ueId" th:field="*{ue_id}" name="ueId" value="5">-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="title">Titre du cours <span class="text-danger">*</span></label>-->
+<!--                            <input type="text" class="form-control" id="title" th:field="*{title}" required/>-->
+<!--                            <p class="text-danger" id="courseTitleError"></p>-->
+<!--                        </div>-->
+
+<!--                        <div class="row">-->
+<!--                            <div class="form-group col-6">-->
+<!--                                <label for="courseType">Type de cours <span class="text-danger">*</span></label>-->
+<!--                                <select class="form-control" id="courseType" name="courseType">-->
+<!--                                    <option value="PRACTICAL">Cours Pratique</option>-->
+<!--                                    <option value="THEORETICAL">Cours Théorique</option>-->
+<!--                                </select>-->
+<!--                                <p class="text-danger" id="courseTypeError"></p>-->
+
+<!--                            </div>-->
+<!--                            <div class="form-group col-6">-->
+<!--                                <label for="duration">Durée (heures) <span class="text-danger">*</span></label>-->
+<!--                                <input type="number" class="form-control" id="duration" placeholder="duree de ce cours"-->
+<!--                                       name="duration" required>-->
+<!--                                <p class="text-danger" id="durationError"></p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="row">-->
+<!--                            <div class="form-group col-6">-->
+<!--                                <label for="numberOfParticipants">Nombre de participants <span-->
+<!--                                        class="text-danger">*</span></label>-->
+<!--                                <input type="number" class="form-control" id="numberOfParticipants"-->
+<!--                                       name="numberOfParticipants" placeholder="Nombre de participants" required>-->
+<!--                                <p class="text-danger" id="numberOfParticipantsError"></p>-->
+<!--                            </div>-->
+
+<!--                            <div class="form-group col-6">-->
+<!--                                <label for="language">Langue <span class="text-danger">*</span></label>-->
+<!--                                <input type="text" class="form-control" id="language" name="language"-->
+<!--                                       placeholder="langue du contenu du cours" required>-->
+<!--                                <p class="text-danger" id="languageError"></p>-->
+
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        <div class="row">-->
+<!--                            <div class="form-group col-6">-->
+<!--                                <label for="objectives">Objectifs <span class="text-danger">*</span></label>-->
+<!--                                <textarea class="form-control" id="objectives" placeholder="objectifs vise"-->
+<!--                                          name="objectives" rows="2"></textarea>-->
+<!--                                <p class="text-danger" id="objectivesError"></p>-->
+<!--                            </div>-->
+
+<!--                            <div class="form-group col-6">-->
+<!--                                <label for="prerequisites">Pré-requis <span class="text-danger">*</span></label>-->
+<!--                                <textarea class="form-control" id="prerequisites"-->
+<!--                                          placeholder="ce quil avoir avant de suivre ce cours" name="prerequisites"-->
+<!--                                          rows="2"></textarea>-->
+<!--                                <p class="text-danger" id="prerequisitesError"></p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        <div class="form-group">-->
+<!--                            <label for="description">Description du cours <span class="text-danger">*</span></label>-->
+<!--                            <textarea class="form-control" id="description" th:field="*{description}"-->
+<!--                                      required></textarea>-->
+<!--                            <p class="text-danger" id="courseDescriptionError"></p>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="courseFiles">Fichiers PDF du cours</label>-->
+<!--                            <input type="file" class="form-control-file" id="courseFiles" name="courseFiles"-->
+<!--                                   accept=".pdf" multiple>-->
+<!--                            <small class="form-text text-muted">Vous pouvez télécharger un ou plusieurs fichiers-->
+<!--                                PDF.</small>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>-->
+<!--                        <button type="submit" class="btn btn-primary" id="submitCourseBtn" disabled>Enregistrer le-->
+<!--                            cours-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--    </div>-->
+
+<!--    <div class="modal fade" id="attachmentsModal" tabindex="-1" role="dialog" aria-labelledby="attachmentsModalLabel"-->
+<!--         aria-hidden="true" th:fragment="attachmentsModal">-->
+<!--        <div class="modal-dialog modal-dialog-centered" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="attachmentsModalLabel">Pièces jointes du cours</h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <ul class="list-group list-group-flush" id="attachmentsList">-->
+
+<!--                    </ul>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<script th:src="@{/assets/js/app.min.js}"></script>-->
+<!--<script th:src="@{/assets/js/scripts.js}"></script>-->
+<!--<script th:src="@{/assets/js/custom.js}"></script>-->
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function () {-->
+<!--        const courseTitleInput = document.getElementById('title');-->
+<!--        const courseDescriptionInput = document.getElementById('description');-->
+<!--        const courseTypeInput = document.getElementById('courseType');-->
+<!--        const durationInput = document.getElementById('duration');-->
+<!--        const numberOfParticipantsInput = document.getElementById('numberOfParticipants');-->
+<!--        const languageInput = document.getElementById('language');-->
+<!--        const objectivesInput = document.getElementById('objectives');-->
+<!--        const prerequisitesInput = document.getElementById('prerequisites');-->
+<!--        const submitCourseBtn = document.getElementById('submitCourseBtn');-->
+
+<!--        function validateForm() {-->
+<!--            let isValid = true;-->
+
+<!--            const courseTitleValue = courseTitleInput.value.trim();-->
+<!--            if (courseTitleValue === '') {-->
+<!--                document.getElementById('courseTitleError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('courseTitleError').textContent = "";-->
+<!--            }-->
+
+<!--            const courseDescriptionValue = courseDescriptionInput.value.trim();-->
+<!--            if (courseDescriptionValue === '') {-->
+<!--                document.getElementById('courseDescriptionError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('courseDescriptionError').textContent = "";-->
+<!--            }-->
+
+<!--            const courseTypeValue = courseTypeInput.value;-->
+<!--            if (courseTypeValue === '') {-->
+<!--                document.getElementById('courseTypeError').textContent = "Veuillez sélectionner un type de cours.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('courseTypeError').textContent = "";-->
+<!--            }-->
+
+<!--            const durationValue = durationInput.value.trim();-->
+<!--            if (durationValue === '') {-->
+<!--                document.getElementById('durationError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('durationError').textContent = "";-->
+<!--            }-->
+
+<!--            const numberOfParticipantsValue = numberOfParticipantsInput.value.trim();-->
+<!--            if (numberOfParticipantsValue === '') {-->
+<!--                document.getElementById('numberOfParticipantsError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('numberOfParticipantsError').textContent = "";-->
+<!--            }-->
+
+<!--            const languageValue = languageInput.value.trim();-->
+<!--            if (languageValue === '') {-->
+<!--                document.getElementById('languageError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('languageError').textContent = "";-->
+<!--            }-->
+
+<!--            const objectivesValue = objectivesInput.value.trim();-->
+<!--            if (objectivesValue === '') {-->
+<!--                document.getElementById('objectivesError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('objectivesError').textContent = "";-->
+<!--            }-->
+
+<!--            const prerequisitesValue = prerequisitesInput.value.trim();-->
+<!--            if (prerequisitesValue === '') {-->
+<!--                document.getElementById('prerequisitesError').textContent = "Ce champ est requis.";-->
+<!--                isValid = false;-->
+<!--            } else {-->
+<!--                document.getElementById('prerequisitesError').textContent = "";-->
+<!--            }-->
+
+<!--            submitCourseBtn.disabled = !isValid;-->
+<!--        }-->
+
+<!--        courseTitleInput.addEventListener('input', validateForm);-->
+<!--        courseDescriptionInput.addEventListener('input', validateForm);-->
+<!--        courseTypeInput.addEventListener('change', validateForm);-->
+<!--        durationInput.addEventListener('input', validateForm);-->
+<!--        numberOfParticipantsInput.addEventListener('input', validateForm);-->
+<!--        languageInput.addEventListener('input', validateForm);-->
+<!--        objectivesInput.addEventListener('input', validateForm);-->
+<!--        prerequisitesInput.addEventListener('input', validateForm);-->
+
+<!--        validateForm();-->
+<!--    });-->
+
+<!--    $(document).ready(function () {-->
+<!--        $('[data-target="#attachmentsModal"]').click(function () {-->
+<!--            var courseId = $(this).data('courseid');-->
+<!--            var attachmentsList = $('#attachmentsList');-->
+
+<!--            $.ajax({-->
+<!--                url: '/courses/' + courseId + '/attachments',-->
+<!--                type: 'GET',-->
+<!--                dataType: 'json',-->
+<!--                success: function (data) {-->
+<!--                    attachmentsList.empty();-->
+
+<!--                    if (data.length > 0) {-->
+<!--                        $.each(data, function (index, attachment) {-->
+<!--                            var listItem = '<li class="list-group-item">' +-->
+<!--                                '<div class="d-flex justify-content-between align-items-center">' +-->
+<!--                                '<span>' + attachment.name + '</span>' +-->
+<!--                                '<div>' +-->
+<!--                                '<a href="http://localhost:8080/' + attachment.url + '" class="btn btn-sm btn-primary me-2" target="_blank">' +-->
+<!--                                '<i class="fas fa-eye"></i>' +-->
+<!--                                '</a>' +-->
+<!--                                '<a href="' + attachment.url + '" class="btn btn-sm btn-primary me-2 ml-2" download>' +-->
+<!--                                '<i class="fas fa-download"></i>' +-->
+<!--                                '</a>' +-->
+<!--                                '</div>' +-->
+<!--                                '</div>' +-->
+<!--                                '</li>';-->
+<!--                            attachmentsList.append(listItem);-->
+<!--                        });-->
+<!--                    } else {-->
+<!--                        attachmentsList.append('<li class="list-group-item">Aucune pièce jointe disponible.</li>');-->
+<!--                    }-->
+<!--                },-->
+<!--                error: function () {-->
+<!--                    console.error('Erreur lors du chargement des pièces jointes.');-->
+<!--                }-->
+<!--            });-->
+
+<!--        });-->
+<!--    });-->
+
+<!--    function saveCourseId(button) {-->
+<!--        var courseId = $(button).data('course-id');-->
+<!--        sessionStorage.setItem('currentCourseId', courseId);-->
+<!--    }-->
+
+<!--    $(document).ready(function () {-->
+<!--        function loadComments(courseId) {-->
+<!--            var currentUserValue = $('#currentUserValue').text();-->
+<!--            var commentSection = $('.comment-section[data-course-id="' + courseId + '"]');-->
+
+<!--            $.ajax({-->
+<!--                type: 'GET',-->
+<!--                url: '/comments/course/' + courseId,-->
+<!--                success: function (comments) {-->
+<!--                    commentSection.empty();-->
+<!--                    comments.forEach(function (comment) {-->
+<!--                        var createdAtDate = new Date(comment.createdAt);-->
+
+<!--                        var formattedDate = createdAtDate.toLocaleDateString('fr-FR', {-->
+<!--                            year: 'numeric',-->
+<!--                            month: 'long',-->
+<!--                            day: 'numeric'-->
+<!--                        });-->
+
+<!--                        var formattedTime = createdAtDate.toLocaleTimeString('fr-FR', {-->
+<!--                            hour: '2-digit',-->
+<!--                            minute: '2-digit'-->
+<!--                        });-->
+
+<!--                        var isCurrentUser = (comment.user.id === currentUserValue.id);-->
+
+<!--                        var commentHtml = `-->
+<!--                    <div class="d-flex justify-content-between">-->
+<!--                        <p class="small">${comment.user.lastName}</p>-->
+<!--                        <p class="small text-muted">${formattedDate} à ${formattedTime}</p>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex flex-row justify-content-start">-->
+<!--                        <img src="https://picsum.photos/150/200" alt="avatar" style="width: 35px; height: 35px; border-radius: 50%;">-->
+<!--                        <div class="border-5">-->
+<!--                            <p class="small p-1 me-2 mb-1 text-white bg-warning" style="line-height: 1.2;">${comment.commentText}</p>-->
+<!--                        </div>-->
+<!--                    </div>`;-->
+
+<!--                        if (!isCurrentUser) {-->
+<!--                            commentHtml = `-->
+<!--                        <div class="d-flex justify-content-between">-->
+<!--                            <p class="small mb-1 text-muted">${formattedDate} à ${formattedTime}</p>-->
+<!--                            <p class="small mb-1">${comment.user.lastName}</p>-->
+<!--                        </div>-->
+<!--                        <div class="d-flex flex-row justify-content-end mb-2 pt-1">-->
+<!--                            <div class="border-5">-->
+<!--                                <p class="small p-2 me-2 mb-1 text-white bg-warning" style="line-height: 1.2;">${comment.commentText}</p>-->
+<!--                            </div>-->
+<!--                            <img src="https://picsum.photos/150/250" alt="avatar" class="ml-2" style="width: 45px; height: 45px; border-radius: 50%;">-->
+<!--                        </div>-->
+<!--                        <hr class="hr">`;-->
+<!--                        }-->
+
+<!--                        commentSection.append(commentHtml);-->
+<!--                    });-->
+<!--                },-->
+<!--                error: function (xhr, status, error) {-->
+<!--                    console.error('Erreur lors du chargement des commentaires : ' + error);-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
+
+<!--        $('#commentForm').submit(function (event) {-->
+<!--            event.preventDefault();-->
+
+<!--            var courseId = sessionStorage.getItem('currentCourseId');-->
+
+<!--            var formData = {-->
+<!--                courseId: courseId,-->
+<!--                commentText: $('#commentText').val(),-->
+<!--            };-->
+
+<!--            $.ajax({-->
+<!--                type: 'POST',-->
+<!--                url: '/comments/add',-->
+<!--                contentType: 'application/json',-->
+<!--                data: JSON.stringify(formData),-->
+<!--                success: function (response) {-->
+<!--                    alert('Commentaire ajouté avec succès.');-->
+<!--                    $('#commentModal').modal('hide');-->
+
+<!--                    loadComments(formData.courseId);-->
+<!--                },-->
+<!--                error: function (xhr, status, error) {-->
+<!--                    var errorMessage = xhr.responseText;-->
+<!--                    console.log('Erreur lors de l\'ajout du commentaire : ' + errorMessage);-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+<!--    });-->
+
+
+<!--</script>-->
+<!--</body>-->
+<!--ide-->
+<!--</html>-->
+
+package com.example.gestion_ue.controller;
+
+import com.example.gestion_ue.dto.UeDto;
+import com.example.gestion_ue.model.Ue;
+import com.example.gestion_ue.model.User;
+import com.example.gestion_ue.service.UeService;
+import com.example.gestion_ue.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
+
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("dashboard")
+@Validated
+public class UeController {
+
+private final UeService ueService;
+private final UserService userService;
+@Autowired
+public UeController(UeService ueService, UserService userService) {
+this.ueService = ueService;
+this.userService = userService;
+}
+
+@PostMapping("/add-ues")
+public RedirectView saveUe(@Valid @ModelAttribute("ueDto") UeDto ueDto, HttpServletRequest request, Model model) {
+ueDto.setCode(ueDto.getCode().replaceAll("\\s+", "").toLowerCase());
+ueService.saveUe(ueDto);
+return new RedirectView("/dashboard/index");
+}
+
+@GetMapping("/check-ue-code/{code}")
+public ResponseEntity<Map<String, Boolean>> checkUeCodeExists(@PathVariable String code) {
+boolean exists = ueService.checkIfCodeExists(code);
+Map<String, Boolean> response = new HashMap<>();
+response.put("exists", exists);
+return ResponseEntity.ok(response);
+}
+
+
+@DeleteMapping("delete-ue/{id}")
+public ResponseEntity<Void> deleteUe(@PathVariable Long id) {
+    if (ueService.deleteUe(id)) {
+    return ResponseEntity.noContent().build();
+    } else {
+    return ResponseEntity.notFound().build();
+    }
     }
 
-    function deleteUe(ueId) {
-        fetch(`/dashboard/delete-ue/${ueId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById(`card_${ueId}`).remove();
-                    $('#deleteUeModal').modal('hide');
-                    window.location.reload();
-                } else {
-                    console.log("Erreur lors de la suppression de l\'UE")
-                }
-            })
-            .catch(error => {
-                console.log('Une Erreur c\'est produite');
-            });
-    }
-
-    function populateUeModal() {
-        const ueId = document.getElementById('editUeId');
-        const ueCode = document.getElementById('editUeCode');
-        const ueTitle = document.getElementById('editUeTitle');
-        const ueDescription = document.getElementById('editUeDescription');
-
-        // Récupérer les valeurs des attributs data-*
-        const modalTrigger = event.currentTarget;
-        ueId.value = modalTrigger.getAttribute('data-id');
-        ueCode.value = modalTrigger.getAttribute('data-code');
-        ueTitle.value = modalTrigger.getAttribute('data-title');
-        ueDescription.value = modalTrigger.getAttribute('data-description');
-    }
-
-    document.getElementById('saveChangesButton').addEventListener('click', function () {
-        const ueId = document.getElementById('editUeId').value;
-        const ueCode = document.getElementById('editUeCode').value;
-        const ueTitle = document.getElementById('editUeTitle').value;
-        const ueDescription = document.getElementById('editUeDescription').value;
-
-        fetch(`/dashboard/update-ue/${ueId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                code: ueCode,
-                title: ueTitle,
-                description: ueDescription
-            })
-        })
-            .then(response => {
-                if (response.ok) {
-                    // Recharge la page après la mise à jour réussie
-                    window.location.reload();
-                } else {
-                    console.error('Erreur lors de la mise à jour de l\'UE');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la mise à jour de l\'UE', error);
-            });
-    });
-
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const ueCodeInput = document.getElementById('ueCode');
-        const ueTitleInput = document.getElementById('ueTitle');
-        const ueDescriptionInput = document.getElementById('ueDescription');
-        const submitBtn = document.getElementById('submitBtn');
-
-        function validateFields() {
-            let isValid = true;
-
-            const ueCodeValue = ueCodeInput.value.trim();
-            if (ueCodeValue === '') {
-                document.getElementById('ueCodeError').textContent = "Ce champ est requis.";
-                isValid = false;
-            } else {
-                document.getElementById('ueCodeError').textContent = "";
-            }
-
-            const ueTitleValue = ueTitleInput.value.trim();
-            if (ueTitleValue === '') {
-                document.getElementById('ueTitleError').textContent = "Ce champ est requis.";
-                isValid = false;
-            } else {
-                document.getElementById('ueTitleError').textContent = "";
-            }
-            submitBtn.disabled = !isValid;
+    @PutMapping("/update-ue/{id}")
+    public ResponseEntity<Void> updateUe(@PathVariable Long id, @RequestBody UeDto ueDto) {
+        boolean updated = ueService.updateUe(id, ueDto.getCode(), ueDto.getTitle(), ueDto.getDescription());
+        if (updated) {
+        return ResponseEntity.noContent().build();
+        } else {
+        return ResponseEntity.notFound().build();
+        }
         }
 
-        ueCodeInput.addEventListener('input', validateFields);
-        ueTitleInput.addEventListener('input', validateFields);
-        ueDescriptionInput.addEventListener('input', validateFields);
-        validateFields();
-    });
-
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const ueCodeField = document.getElementById('ueCode');
-
-        ueCodeField.addEventListener('input', function () {
-            const ueCode = ueCodeField.value.replace("\\s+", "").lowerCase();
-
-            fetch(`/dashboard/check-ue-code/${ueCode}`)
-                .then(response => response.json())
-                .then(data => {
-                    const ueCodeError = document.getElementById('ueCodeError');
-                    if (data.exists) {
-                        ueCodeError.textContent = 'Ce code d\'UE existe déjà.';
-                        document.getElementById('submitBtn').disabled = true;
-                    } else {
-                        ueCodeError.textContent = '';
-                        document.getElementById('submitBtn').disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la vérification du code d\'UE:', error);
-                });
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const editUeCodeInput = document.getElementById('editUeCode');
-        const editUeTitleInput = document.getElementById('editUeTitle');
-        const saveChangesButton = document.getElementById('saveChangesButton');
-
-        function validateForm() {
-            let isValid = true;
-
-            const editUeCodeValue = editUeCodeInput.value.trim();
-            if (editUeCodeValue === '') {
-                document.getElementById('ueCodeUpdateError').textContent = "Ce champ est requis.";
-                isValid = false;
-            } else {
-                document.getElementById('ueCodeUpdateError').textContent = "";
+        @GetMapping("courses/publications")
+        public String getUesByUserId(Model model) {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(currentUserEmail);
+        List<Ue> ues = ueService.getUesByUserId(user.getId());
+            model.addAttribute("ues", ues);
+            return "dashboard/courses/publications";
+            }
             }
 
-            const editUeTitleValue = editUeTitleInput.value.trim();
-            if (editUeTitleValue === '') {
-                document.getElementById('ueTitleUpdateError').textContent = "Ce champ est requis.";
-                isValid = false;
-            } else {
-                document.getElementById('ueTitleUpdateError').textContent = "";
-            }
-
-            saveChangesButton.disabled = !isValid;
-        }
-
-        function handleInputValidation(event) {
-            const target = event.target;
-            if (target === editUeCodeInput || target === editUeTitleInput) {
-                validateForm();
-            }
-        }
-
-        editUeCodeInput.addEventListener('input', handleInputValidation);
-        editUeTitleInput.addEventListener('input', handleInputValidation);
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const ueCodeField = document.getElementById('editUeCode');
-        document.getElementById('saveChangesButton').disabled = true;
-
-        ueCodeField.addEventListener('input', function () {
-            const ueCode = ueCodeField.value.trim();
-
-            fetch(`/dashboard/check-ue-code/${ueCode}`)
-                .then(response => response.json())
-                .then(data => {
-                    const ueCodeError = document.getElementById('ueCodeUpdateError');
-                    if (data.exists) {
-                        ueCodeError.textContent = 'Ce code d\'UE existe déjà.';
-                        document.getElementById('saveChangesButton').disabled = true;
-                    } else {
-                        ueCodeError.textContent = '';
-                        document.getElementById('saveChangesButton').disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la vérification du code d\'UE:', error);
-                });
-        });
-    });
 
 
-</script>
-</body>
-
-</html>

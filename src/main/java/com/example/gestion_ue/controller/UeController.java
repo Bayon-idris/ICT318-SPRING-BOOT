@@ -1,6 +1,7 @@
 package com.example.gestion_ue.controller;
 
 import com.example.gestion_ue.dto.UeDto;
+import com.example.gestion_ue.model.Ue;
 import com.example.gestion_ue.service.UeService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,6 @@ public class UeController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }
 

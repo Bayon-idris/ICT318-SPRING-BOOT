@@ -96,8 +96,8 @@
                     <a href="/profile" class="dropdown-item has-icon">
                         <i class="far fa-user"></i> Profile
                     </a>
-                    <a href="" class="dropdown-item has-icon" sec:authorize="hasRole('ROLE_TEACHER')"> <i class="far
-										fa-bookmark"></i> Mes Publications
+                    <a href="/ues/courses/publications" class="dropdown-item has-icon" sec:authorize="hasRole('ROLE_TEACHER')">
+                        <i class="far fa-bookmark"></i> Mes Publications
                     </a>
                     <div class="dropdown-divider"></div>
                     <a th:href="@{/logout}" class="dropdown-item has-icon text-danger"> <i
