@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -45,4 +46,10 @@ public class CourseServiceImpl implements CourseService {
         course.setStatus(status);
         courseRepository.save(course);
     }
+    @Override
+    public Course findById(Long id) {
+        Optional<Course> optionalCourse = courseRepository.findById(id);
+        return optionalCourse.orElse(null);
+    }
+
 }

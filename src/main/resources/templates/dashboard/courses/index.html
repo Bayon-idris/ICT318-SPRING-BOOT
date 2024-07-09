@@ -122,7 +122,9 @@
                                                 </div>
                                                 <hr class="hr">
                                                 <div class="d-flex mt -3 justify-content-between">
-                                                    <p class="text-muted font-15 mb-0"><a href="">Voir tous les autres commentaires</a></p>
+                                                    <p class="text-muted font-15 mb-0">
+                                                        <a th:href="@{/comments/course/{courseId}/comments(courseId=${course.id})}">Voir tous les autres commentaires</a>
+                                                    </p>
                                                     <button href="#" class="btn btn-success btn-sm "
                                                             data-toggle="modal"
                                                             data-target="#attachmentsModal"

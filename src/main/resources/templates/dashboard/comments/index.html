@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Dashboard - Gestion des UE et Cours</title>
+    <link rel="stylesheet" th:href="@{/assets/css/app.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/components.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/custom.css}">
+</head>
+<body>
+
+<div class="loader "></div>
+<div id="app">
+    <div class="main-wrapper main-wrapper-1">
+
+        <div th:replace="fragments/header :: header"></div>
+
+        <div th:replace="fragments/sidebar :: sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <section class="section">
+                <div class="section-body">
+                    <div class="row justify-content-between">
+                        <div class="col-md-12">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb bg-primary text-white-all">
+                                    <li class="breadcrumb-item"><a th:href="@{/dashboard/index}"><i
+                                            class="fas fa-tachometer-alt"></i>
+                                        Dashboard</a></li>
+                                    <li class="breadcrumb-item">
+                                        <a href="#">
+                                            <i class="fas fa-book"></i>
+                                            <span th:text="${courseTitle}">Nom de l'UE</span>
+                                        </a>
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <i class="fas fa-comment-alt"></i>
+                                        Commentaires
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12  col-lg-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Messages</h4>
+                                </div>
+                                <div class="card-body">
+                                    <ul id="commentsList">
+                                        <li th:if="${#lists.isEmpty(comments)}" class="media">
+                                            <div class="media-body">
+                                                <div class="text-small">Pas de commentaires</div>
+                                            </div>
+                                        </li>
+                                        <li class="media" th:each="comment : ${comments}">
+                                            <div class="media-body">
+                                                <div class="mt-0 font-weight-bold">
+                                                    <span th:text="${comment.userId == 1 ? 'Jane Doe' : 'John Doe'}">Nom</span>
+                                                    <span class="text-small text-muted"
+                                                          th:text="${#dates.format(comment.createdAt, 'HH:mm')}">12:30</span>
+                                                </div>
+                                                <div class="text-small" th:text="${comment.comment}">Hello How R You?
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                    </ul>
+                                    <hr class="hr">
+
+                                    <form id="commentForm" method="POST">
+                                        <div class="form-group">
+                                            <label for="commentText">Votre commentaire</label>
+                                            <textarea class="form-control" id="commentText" name="commentText" rows="4"
+                                                      required></textarea>
+                                        </div>
+                                        <input type="hidden" id="courseId" name="courseId" th:value="${courseId}">
+                                        <button type="submit" class="btn btn-primary">Publier</button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+            <div th:replace="fragments/setting :: setting"></div>
+        </div>
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+</div>
+
+<script th:src="@{/assets/js/app.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+<script th:src="@{/assets/js/custom.js}"></script>
+<script>
+    $(document).ready(function () {
+        $('#commentForm').submit(function (event) {
+            event.preventDefault();
+
+            var courseId = $('#courseId').val();
+
+            var formData = {
+                courseId: courseId,
+                commentText: $('#commentText').val(),
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/comments/add',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    alert('Commentaire ajouté avec succès.');
+
+                    // Supprimez le message "Pas de commentaires" si présent
+                    if ($('#commentsList').find('li').length === 1 && $('#commentsList').find('li').text() === 'Pas de commentaires') {
+                        $('#commentsList').empty();
+                    }
+
+                    // Ajoutez le commentaire à la liste des commentaires
+                    addCommentToList(response);
+
+                    // Videz le champ de texte du commentaire
+                    $('#commentText').val('');
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.responseText;
+                    console.log('Erreur lors de l\'ajout du commentaire : ' + errorMessage);
+                }
+            });
+        });
+    });
+
+    function addCommentToList(comment) {
+        var commentHtml = `
+    <li class="media">
+        <div class="media-body">
+            <div class="mt-0 font-weight-bold">
+                john doe
+                <span class="text-small text-muted">${new Date(comment.createdAt).toLocaleTimeString()}</span>
+            </div>
+            <div class="text-small">${comment.comment}</div>
+        </div>
+    </li>
+    `;
+        $('#commentsList').prepend(commentHtml);
+    }
+</script>
+</body>
+</html>

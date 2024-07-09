@@ -27,26 +27,28 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void saveDocuments(MultipartFile[] files, Course course) throws IOException {
-        for (MultipartFile file : files) {
-            String originalFileName = Objects.requireNonNull(file.getOriginalFilename());
-            String fileName = Instant.now().toEpochMilli() + "_" + StringUtils.cleanPath(originalFileName);
-            String filePath = Constant.FILE_PATH + File.separator + fileName;
+        if (files != null) {
+            for (MultipartFile file : files) {
+                String originalFileName = Objects.requireNonNull(file.getOriginalFilename());
+                String fileName = Instant.now().toEpochMilli() + "_" + StringUtils.cleanPath(originalFileName);
+                String filePath = Constant.FILE_PATH + File.separator + fileName;
 
-            File newFile = new File(filePath);
-            newFile.getParentFile().mkdirs();
+                File newFile = new File(filePath);
+                newFile.getParentFile().mkdirs();
 
-            try (FileOutputStream fout = new FileOutputStream(newFile)) {
-                fout.write(file.getBytes());
+                try (FileOutputStream fout = new FileOutputStream(newFile)) {
+                    fout.write(file.getBytes());
 
-                Document document = new Document();
-                document.setName(fileName);
-                document.setUrl(filePath);
-                document.setCourse(course);
-                System.out.println("Course ID in document: " + course.getId());
+                    Document document = new Document();
+                    document.setName(fileName);
+                    document.setUrl(filePath);
+                    document.setCourse(course);
+                    System.out.println("Course ID in document: " + course.getId());
 
-                documentRepository.save(document);
-            } catch (IOException e) {
-                throw new IOException("Failed to save course file " + fileName, e);
+                    documentRepository.save(document);
+                } catch (IOException e) {
+                    throw new IOException("Failed to save course file " + fileName, e);
+                }
             }
         }
     }

@@ -86,7 +86,7 @@ public class CourseController {
         course.setNumberOfParticipants(courseDto.getNumberOfParticipants());
         course.setPrerequisites(courseDto.getPrerequisites());
         course.setObjectives(courseDto.getObjectives());
-        course.setStatus(CourseStatus.CREATED);
+        course.setStatus(CourseStatus.ONGOING);
         course.setLanguage(courseDto.getLanguage());
         if (course.getCreatedAt() == null) {
             course.setCreatedAt(new Date());
