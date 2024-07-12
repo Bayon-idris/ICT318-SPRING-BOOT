@@ -132,6 +132,7 @@
                     $('#commentText').val('');
                 },
                 error: function (xhr, status, error) {
+
                     var errorMessage = xhr.responseText;
                     console.log('Erreur lors de l\'ajout du commentaire : ' + errorMessage);
                 }
